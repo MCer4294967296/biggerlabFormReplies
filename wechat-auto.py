@@ -93,19 +93,17 @@ def jinshujuIN():
 
 @app.route("/sendToWechat", methods=["POST"])
 def sendToWechat():
-    if not request.is_json():
-        abort(400)
-        print("Data is not a json, rejecting.")
+    if not request.is_json:
+        return "400 BAD REQUEST: Data is not a json, rejecting.", 400
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
     if jsonObj['form'] == "" or jsonObj['id'] <= 0:
-        abort(400)
-        print("Unexpected data.")
+        return "400 BAD REQUEST: Unexpected data.", 400
 
     form = jsonObj['form'] # get the unique form name
     
     col = db[form] # access the database
 
-    info = col.find({"_id": jsonObj['id']}) # retrieve the information
+    info = col.find({"_id": jsonObj['id']})[0] # retrieve the information
     template = templates.translation[form] # grab the template
     message = template(info) # formulate the message
     target = "filehelper" # placeholder, should be from info
