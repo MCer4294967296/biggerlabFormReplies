@@ -1,5 +1,7 @@
 def parseBiggerlabCourseFeedback(blob):
     info = {}
+
+    info["reasonFilling"] = blob["field_5"]
     
     info["teacherName"] = blob["field_4"]
     info["teacherComment"] = blob["field_19"]
