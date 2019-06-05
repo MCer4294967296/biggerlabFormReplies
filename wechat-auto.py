@@ -38,11 +38,11 @@ def jinshujuIN():
     # 群组搜索下如何命名微信群
     # target_group = bot.groups(update=True, contact_only=False).search('test')[0]
 
-    parser = parseForms.translation[form] # from the unique form name, we get the parser
-    # we surely can do it in one step, but this doesn't really matter
-    info = parser(jsonObj["entry"]).update({"_id" : int(jsonObj["entry"]["serial_number"])}) # parse the info out
-    
-    col = db[form] # access the database
+    parser = parseForms.translation[form] # from the unique form name, we get the parser.
+    # we surely can do it in one step, but this doesn't really matter.
+    info = parser(jsonObj["entry"]) # parse the information out,
+    info.update({"_id" : int(jsonObj["entry"]["serial_number"])}) # and append the id onto it.
+    col = db[form] # access the database.
 
     '''entry = { "_id": int(jsonObj['serial_number']), 
               "studentName": info["studentName"],
@@ -60,7 +60,7 @@ def jinshujuIN():
     try:
         col.insert_one(info) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
-        return "500 Internal Server Error: Duplicate Key", 500 # then err out
+        return "500 Internal Server Error: Duplicate Key", 500 # then err out;
         # we can also do a query instead of trying to insert, # TODO
     return "200 OK", 200 # otherwise we are good
 
@@ -122,4 +122,4 @@ if __name__ == '__main__':
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
     print("hah") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    app.run(host='0.0.0.0', port=5050)
