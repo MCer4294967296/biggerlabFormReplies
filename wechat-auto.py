@@ -40,7 +40,7 @@ def jinshujuIN():
 
     parser = parseForms.translation[form] # from the unique form name, we get the parser
     # we surely can do it in one step, but this doesn't really matter
-    info = parser(jsonObj['entry']).update({"_id" : int(jsonObj["serial_number"])}) # parse the info out
+    info = parser(jsonObj["entry"]).update({"_id" : int(jsonObj["entry"]["serial_number"])}) # parse the info out
     
     col = db[form] # access the database
 
