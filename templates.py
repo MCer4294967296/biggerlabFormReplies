@@ -1,4 +1,4 @@
-def courseFeedbackMessage(info):
+def messageCourseFeedback(info):
     try:
         message = \
         u"""{}家长您好，导师{}对您的孩子于{}开始的{}作出了月度课程反馈。
@@ -20,3 +20,7 @@ def courseFeedbackMessage(info):
     except KeyError:
         pass
     return message
+
+translation = {
+    "biggerlab course feecback" : messageCourseFeedback
+}

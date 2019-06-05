@@ -1,23 +1,26 @@
 def parseBiggerlabCourseFeedback(blob):
-    ret = {}
-
-    ret["Form Type"] = "Biggerlab Course Feedback"
+    info = {}
     
-    ret["teacherName"] = blob["field_4"]
-    ret["teacherComment"] = blob["field_19"]
+    info["teacherName"] = blob["field_4"]
+    info["teacherComment"] = blob["field_19"]
 
-    ret["courseName"] = blob["field_8"]
-    ret["courseStartDate"] = blob["field_9"]
-    ret["courseCapturelink"] = blob["field_32"]
+    info["courseName"] = blob["field_8"]
+    info["courseStartDate"] = blob["field_9"]
+    info["courseCapturelink"] = blob["field_32"]
 
-    ret["studentName"] = blob["field_6"] + blob["field_31"]
-    ret["studentLearnt"] = blob["field_13"]
+    info["studentName"] = blob["field_6"] + blob["field_31"]
+    info["studentLearnt"] = blob["field_13"]
 
-    ret["rateAttendance"] = blob["field_14"]
-    ret["rateUnderstanding"] = blob["field_15"]
-    ret["rateAssignmentCompletion"] = blob["field_16"]
-    ret["rateGeneral"] = blob["field_17"]
+    info["rateAttendance"] = blob["field_14"]
+    info["rateUnderstanding"] = blob["field_15"]
+    info["rateAssignmentCompletion"] = blob["field_16"]
+    info["rateGeneral"] = blob["field_17"]
 
-    ret["projScreenshot"] = blob["field_18"]
+    info["projScreenshot"] = blob["field_18"]
 
-    return ret
+    info["sentToWechat"] = False
+    return info
+
+translation = {
+    "biggerlab course feedback" : parseBiggerlabCourseFeedback
+}
