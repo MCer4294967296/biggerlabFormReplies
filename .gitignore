@@ -1,5 +1,5 @@
 venv
-.pyc
+*.pyc
 itchat.pkl
 .vscode
 __pycache__
