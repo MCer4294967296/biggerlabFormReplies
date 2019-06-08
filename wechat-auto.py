@@ -121,14 +121,13 @@ def sendToWechat():
 def sendPage(form="", id=-1):
     col = db[form]
     try:
-        info = col.find({"_id": id})[0]
+        info = col.find({"_id": int(id)})[0]
     except:
         return "404 NOT FOUND", 404
+
     message = templates.translation[form](info)
-    docu = ""
     with open("templates/viewDocu.html", 'r') as f:
-        docu = '\n'.join(f.readlines())
-        docu.replace("$message", message)
+        docu = '\n'.join(f.readlines()).replace("$message", message)
     return docu, 200
 
 
