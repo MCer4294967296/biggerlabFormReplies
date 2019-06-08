@@ -117,12 +117,19 @@ def sendToWechat():
     return "200 OK", 200
 
 
-@app.route("/getPage", methods=["GET"])
-def sendPage():
-    ret = ""
-    with open("viewDocu.html", 'r') as f:
-        ret = '\n'.join(f.readlines())
-    return ret, 200
+@app.route("/getPage/<form>/<id>", methods=["GET"])
+def sendPage(form="", id=-1):
+    col = db[form]
+    try:
+        info = col.find({"_id": id})[0]
+    except:
+        return "404 NOT FOUND", 404
+    message = templates.translation[form](info)
+    docu = ""
+    with open("templates/viewDocu.html", 'r') as f:
+        docu = '\n'.join(f.readlines())
+        docu.replace("$message", message)
+    return docu, 200
 
 
 if __name__ == '__main__':
