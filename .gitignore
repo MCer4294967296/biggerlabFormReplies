@@ -1,4 +1,5 @@
 venv
+log
 *.pyc
 itchat.pkl
 .vscode

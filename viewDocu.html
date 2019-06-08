@@ -20,7 +20,7 @@ let button = document.getElementById("button_sendToWechat");
 button.addEventListener("click", sendToWechat);
 
 function sendToWechat() {
-    postData('http://127.0.0.1:5050/sendToWechat', { "id": "361", "form": "biggerlab course feedback" }) // FIXME
+    postData('http://47.100.121.67:5050/sendToWechat', { "id": 361, "form": "biggerlab course feedback" }) // FIXME
       .then(data => console.log(JSON.stringify(data))); // arrow function syntax. data is the fetched data
       
 }

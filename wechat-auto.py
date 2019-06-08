@@ -131,4 +131,4 @@ if __name__ == '__main__':
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
     print("hah") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    app.run(host='0.0.0.0', port=5050)
