@@ -1,5 +1,6 @@
 import json
 from flask import Flask, abort, request, render_template
+from flask_cors import CORS
 import parseForms
 import templates
 import formNameTranslation
@@ -10,6 +11,7 @@ lc = lambda : print("Login Successful.")
 ec = lambda : print("Logout Successful.")
 
 app = Flask(__name__)
+CORS(app)
 
 def getroom_message(n):
     #获取群的username，对群成员进行分析需要用到
@@ -91,12 +93,13 @@ def jinshujuIN():
     #bot.join()
     """
 
+
 @app.route("/sendToWechat", methods=["POST"])
 def sendToWechat():
     if not request.is_json:
         return "400 BAD REQUEST: Data is not a json, rejecting.", 400
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
-    if jsonObj['form'] == "" or jsonObj['id'] <= 0:
+    if jsonObj['form'] == "" or int(jsonObj['id']) <= 0:
         return "400 BAD REQUEST: Unexpected data.", 400
 
     form = jsonObj['form'] # get the unique form name
@@ -114,10 +117,18 @@ def sendToWechat():
     return "200 OK", 200
 
 
+@app.route("/getPage", methods=["GET"])
+def sendPage():
+    ret = ""
+    with open("viewDocu.html", 'r') as f:
+        ret = '\n'.join(f.readlines())
+    return ret, 200
+
+
 if __name__ == '__main__':
-    itchat.auto_login(hotReload=True, loginCallback=lc, exitCallback=ec, enableCmdQR=2)
+    itchat.auto_login(loginCallback=lc, enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
     print("hah") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050)
+    app.run(host='0.0.0.0', port=5050, debug=True)
