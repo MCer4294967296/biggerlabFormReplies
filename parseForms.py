@@ -1,24 +1,51 @@
 def parseBiggerlabCourseFeedback(blob):
     info = {}
 
-    info["reasonFilling"] = blob["field_5"]
-    
-    info["teacherName"] = blob["field_4"]
-    info["teacherComment"] = blob["field_19"]
+    info["reasonFilling"] = blob["field_5"] # 填表原因
 
-    info["courseName"] = blob["field_8"]
-    info["courseStartDate"] = blob["field_9"]
-    info["courseCapturelink"] = blob["field_32"]
+    info["teacherName"] = blob["field_4"] # 导师姓名
+    info["teacherComment"] = blob["field_19"] # 导师评价
 
-    info["studentName"] = blob["field_6"] + blob["field_31"]
-    info["studentLearnt"] = blob["field_13"]
+    info["studentName"] = blob["field_6"] + blob["field_31"] # 学生姓名
 
-    info["rateAttendance"] = blob["field_14"]
-    info["rateUnderstanding"] = blob["field_15"]
-    info["rateAssignmentCompletion"] = blob["field_16"]
-    info["rateGeneral"] = blob["field_17"]
+    info["courseName"] = blob["field_8"] # 课程名
+    info["courseStartDate"] = blob["field_9"] # 课程开始日期
+    info["courseEndDate"] = blob["field_12"] # 课程结束日期
+    info["courseContent"] = blob["field_13"] # 已上课程内容
+    info["courseCapturelink"] = blob["field_32"] # 课程视频链接
+    info["projectScreenshot"] = blob["field_18"] # 项目作品截图
 
-    info["projScreenshot"] = blob["field_18"]
+    info["rateAttendance"] = blob["field_14"] # 学生课堂参与度
+    info["rateUnderstanding"] = blob["field_15"] # 知识点理解情况
+    info["rateAssignmentCompletion"] = blob["field_16"] # 课堂任务完成情况
+    info["rateGeneral"] = blob["field_17"] # 综合评价
+
+    info["reasonChanging"] = blob["field_20"] # 交接原因
+    info["nextTeacher"] = blob["field_21"] # 接手导师姓名
+    info["classType"] = blob["field_23"] # 上课形式
+    info["classStartTime"] = blob["field_10"] # 上课时间
+    info["classEndTime"] = blob["field_11"] # 下课时间
+    info["hoursTaught"] = blob["field_25"] # 已上课时数
+
+    info["awardReceived"] = blob["field_33"] # 学生是否获得相应荣誉
+    info["awardType"] = blob["field_37"] # 荣誉类型
+    info["projectDescription"] = blob["field_42"] # 学生项目描述/所学内容
+    info["teacherNotes"] = blob["field_46"] # 导师对该学生的评语
+
+    info["awardEvidence"] = blob["field_40"] # 竞赛获奖证明截图
+    info["competitionName"] = blob["field_34"] # 比赛名称
+    info["prizeReceived"] = blob["field_35"] # 获得的奖项
+
+    info["projectPublishEvidence"] = blob["field_47"] # 项目发布证明截图
+    info["copyrightEvidence"] = blob["field_48"] # 著作权证明截图
+    info["projectLink"] = blob["field_43"] # 项目链接
+    info["sourceCode"] = blob["field_36"] # 源代码文件
+
+    info["admissionEvidence"] = blob["field_49"] # 名校录取证明截图
+    info["schoolName"] = blob["field_44"] # 学校名称
+    info["profession"] = blob["field_45"] # 专业名称
+
+    info["awardOthers"] = blob["field_50"] # 其他荣誉证明截图
 
     info["sentToWechat"] = False
     return info
