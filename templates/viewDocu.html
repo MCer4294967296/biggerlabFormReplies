@@ -4,9 +4,7 @@
 <title>Message Viewer</title>
 <style>
 body {
-  background-color: black;
   text-align: center;
-  color: white;
   font-family: Arial, Helvetica, sans-serif;
 }
 </style>
@@ -14,10 +12,15 @@ body {
 <body>
 
 <div>
-<button id="button_sendToWechat">Send to wechat, ship it!</button>
+  <a href="http://47.100.121.67:5050/getPage/$form/$previd">previous</a>
+  <button id="button_sendToWechat">Send to wechat, ship it!</button>
+  <a href="http://47.100.121.67:5050/getPage/$form/$nextid">next</a>
 </div>
 <div>
-    <textarea rows="10" cols="30"> $message </textarea> 
+  <p>current message ID: $currid</p>
+</div>
+<div>
+  <textarea rows="20" cols="80"> $message </textarea> 
 </div>
 
 

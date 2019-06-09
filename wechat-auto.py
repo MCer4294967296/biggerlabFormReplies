@@ -46,19 +46,6 @@ def jinshujuIN():
     info.update({"_id" : int(jsonObj["entry"]["serial_number"])}) # and append the id onto it.
     col = db[form] # access the database.
 
-    '''entry = { "_id": int(jsonObj['serial_number']), 
-              "studentName": info["studentName"],
-              "teacherName": info["teacherName"],
-              "courseStartDate": info["courseStartDate"],
-              "courseName": info["courseName"],
-              "rateAttendance": info["rateAttendance"],
-              "rateUnderstanding": info["rateUnderstanding"],
-              "rateAssignmentCompletion": info["rateAssignmentCompletion"],
-              "rateGeneral": info["rateGeneral"],
-              "projScreenshot": info["projScreenshot"],
-              "studentLearnt": info["studentLearnt"],
-              "teacherComment": info["teacherComment"] }
-              '''
     try:
         col.insert_one(info) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
@@ -119,17 +106,29 @@ def sendToWechat():
 
 @app.route("/getPage/<form>/<id>", methods=["GET"])
 def sendPage(form="", id=-1):
+    ret = getMessage(form, id)
+    if ret[1] == 404:
+        return "404 NOT FOUND"
+    message = ret[0]
+    with open("templates/viewDocu.html", 'r') as f:
+        docu = '\n'.join(f.readlines())
+        docu = docu.replace("$message", message)\
+                   .replace("$form", form)\
+                   .replace("$previd", id - 1)\
+                   .replace("$nextid", id + 1)\
+                   .replace("$currid", id)\
+                   .replace("$message", message)
+    return docu, 200
+
+@app.route("/getMessage/<form>/<id>", methods=["GET"])
+def getMessage(form="", id=-1):
     col = db[form]
     try:
         info = col.find({"_id": int(id)})[0]
     except:
         return "404 NOT FOUND", 404
-
-    message = templates.translation[form](info)
-    with open("templates/viewDocu.html", 'r') as f:
-        docu = '\n'.join(f.readlines()).replace("$message", message)
-    return docu, 200
-
+    return templates.translation[form](info), 200
+    
 
 if __name__ == '__main__':
     itchat.auto_login(loginCallback=lc, enableCmdQR=2)
