@@ -106,6 +106,7 @@ def sendToWechat():
 
 @app.route("/getPage/<form>/<id>", methods=["GET"])
 def sendPage(form="", id=-1):
+    id = int(id)
     ret = getMessage(form, id)
     if ret[1] == 404:
         return "404 NOT FOUND"
