@@ -30,7 +30,7 @@ button.addEventListener("click", sendToWechat);
 
 function sendToWechat() {
     postData('http://47.100.121.67:5050/sendToWechat', { "id": $currid, "form": "biggerlab course feedback" }) // FIXME
-      .then(data => console.log(JSON.stringify(data))); // arrow function syntax. data is the fetched data
+      .then(data => alert(data)); // arrow function syntax. data is the fetched data
 }
 
 // FIXME: customize your request
@@ -48,7 +48,7 @@ function postData(url = '', data = {}) {
         referrer: 'no-referrer', // no-referrer, *client
         body: JSON.stringify(data), // body data type must match "Content-Type" header
     })
-    .then(response => response.json()); // parses JSON response into native Javascript objects 
+    .then(response => response); // parses JSON response into native Javascript objects 
 }
 </script>
 
