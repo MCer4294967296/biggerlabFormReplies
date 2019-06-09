@@ -7,8 +7,6 @@ import formNameTranslation
 import pymongo
 import itchat
 
-lc = lambda : print("Login Successful.")
-ec = lambda : print("Logout Successful.")
 
 app = Flask(__name__)
 CORS(app)
@@ -41,9 +39,9 @@ def jinshujuIN():
     # target_group = bot.groups(update=True, contact_only=False).search('test')[0]
 
     parser = parseForms.translation[form] # from the unique form name, we get the parser.
-    # we surely can do it in one step, but this doesn't really matter.
     info = parser(jsonObj["entry"]) # parse the information out,
-    info.update({"_id" : int(jsonObj["entry"]["serial_number"])}) # and append the id onto it.
+    id = int(jsonObj["entry"]["serial_number"])
+    info.update({"_id" : id})
     col = db[form] # access the database.
 
     try:
@@ -51,7 +49,18 @@ def jinshujuIN():
     except pymongo.errors.DuplicateKeyError: # if duplicate,
         return "500 Internal Server Error: Duplicate Key", 500 # then err out;
         # we can also do a query instead of trying to insert, # TODO
-    return "200 OK", 200 # otherwise we are good
+
+    metaInit = metaInitializer.translation[form]
+    meta = metaInit(jsonObj["entry"])
+    meta.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
+    col = db["meta" + form]
+    try:
+        col.insert_one(meta) # try inserting,
+    except pymongo.errors.DuplicateKeyError: # if duplicate,
+        return "500 Internal Server Error: Duplicate Key", 500 # then err out;
+        # we can also do a query instead of trying to insert, # TODO
+
+    return None, 200 # otherwise we are good
 
     #itchat.send_msg(msg=message, toUserName="filehelper")
     #itchat.send_msg(msg=message, toUserName=itchat.search_friends(name="Rock大石头")[0]["UserName"])
@@ -75,8 +84,6 @@ def jinshujuIN():
     
     #afterSend未定义，if判断未执行状态下，会报错建议写入if条件下
     #target_group.send(afterSend)
-    #堵塞进程后无法执行后续代码，res.status(200)无法返回，
-    #金数据要求：该服务器需在2秒内返回2XX（200，201等）作为应答。不然会重试最多6次post请求
     #bot.join()
     """
 
@@ -90,7 +97,7 @@ def sendToWechat():
         return "400 BAD REQUEST: Unexpected data.", 400
 
     form = jsonObj['form'] # get the unique form name
-    
+
     col = db[form] # access the database
 
     info = col.find({"_id": jsonObj['id']})[0] # retrieve the information
@@ -99,8 +106,9 @@ def sendToWechat():
     target = "filehelper" # placeholder, should be from info
 
     itchat.send(msg=message, toUserName=target) # send the message
-    col.update_one({'_id': jsonObj['id']}, {'$set': {'sentToWechat': True}}) # update the database
-    
+    col = db["meta" + form]
+    col.update_one({'id': jsonObj['id']}, {'$set': {'sentToWechat': True}}) # update the database
+
     return "200 OK", 200
 
 
@@ -121,6 +129,7 @@ def sendPage(form="", id=-1):
                    .replace("$message", message)
     return docu, 200
 
+
 @app.route("/getMessage/<form>/<id>", methods=["GET"])
 def getMessage(form="", id=-1):
     col = db[form]
@@ -131,8 +140,10 @@ def getMessage(form="", id=-1):
     return templates.translation[form](info), 200
     
 
+ec = lambda : print("Logout Successful.")
+
 if __name__ == '__main__':
-    itchat.auto_login(loginCallback=lc, enableCmdQR=2)
+    itchat.auto_login(loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database

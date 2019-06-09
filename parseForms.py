@@ -53,8 +53,6 @@ def parseBiggerlabCourseFeedback(blob):
     info["profession"] = blob["field_45"] # 专业名称
 
     info["awardOthers"] = shorten(deDownload(blob["field_50"])) # 其他荣誉证明截图
-
-    info["sentToWechat"] = False
     return info
 
 translation = {
