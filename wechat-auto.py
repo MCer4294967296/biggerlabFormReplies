@@ -115,9 +115,9 @@ def sendPage(form="", id=-1):
         docu = '\n'.join(f.readlines())
         docu = docu.replace("$message", message)\
                    .replace("$form", form)\
-                   .replace("$previd", id - 1)\
-                   .replace("$nextid", id + 1)\
-                   .replace("$currid", id)\
+                   .replace("$previd", str(id - 1))\
+                   .replace("$nextid", str(id + 1))\
+                   .replace("$currid", str(id))\
                    .replace("$message", message)
     return docu, 200
 
