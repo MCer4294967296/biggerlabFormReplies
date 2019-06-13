@@ -54,7 +54,7 @@ def jinshujuIN():
     metaInit = metaInitializer.translation[form]
     meta = metaInit(jsonObj["entry"])
     meta.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
-    meta["message"] = getMessage(form, id)[0]
+    #meta["message"] = getMessage(form, id)[0]
     col = db["meta" + form]
     try:
         col.insert_one(meta) # try inserting,
@@ -164,14 +164,13 @@ def getPage(form=""):
 @app.route("/getMessage/<form>/<id>", methods=["GET"])
 def getMessage(form, id):
     id = int(id)
-    col = db[form]
+    col = db["meta" + form]
     meta = col.find({"jsjid": id})[0]
+    if meta["message"] == "":
+        col = db[form]
+        info = col.find({"_id": id})[0]
+        meta["message"] = templates.translation[form](info)
     return meta["message"], 200
-
-
-    info = col.find({"_id": id})[0]
-    message = templates.translation[form](info)
-    return message, 200
 
 
 @app.route("/vendor/<fileName>", methods=["GET"])
