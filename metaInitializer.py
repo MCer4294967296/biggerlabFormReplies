@@ -4,6 +4,8 @@ def parseBiggerlabCourseFeedback(blob):
     meta["sentToWechat"] = False
     meta["message"] = ""
     meta["edited"] = False
+
+    return meta
     
 
 translation = {
