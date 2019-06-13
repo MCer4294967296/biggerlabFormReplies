@@ -1,5 +1,5 @@
 import json
-from flask import Flask, abort, request, render_template
+from flask import Flask, abort, request, render_template, jsonify
 from flask_cors import CORS
 import parseForms
 import templates
@@ -168,8 +168,9 @@ def getMessage(form, id):
     meta = col.find({"jsjid": id})[0]
     if meta["message"] == "":
         info = db[form].find({"_id": id})[0]
-        col.update_one({"jsjid": id}, {"$set": {"message": templates.translation[form](info)}})
-    return meta["message"], 200
+        message = templates.translation[form](info)
+        col.update_one({"jsjid": id}, {"$set": {"message": message}})
+    return jsonify({"id": id, "message": message})
 
 
 @app.route("/vendor/<fileName>", methods=["GET"])
