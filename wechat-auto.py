@@ -165,8 +165,8 @@ def getPage(form=""):
 def getMessage(form, id):
     id = int(id)
     col = db["meta" + form]
-    meta = col.find({"jsjid": id})[0]
-    if meta["message"] == "":
+    message = col.find({"jsjid": id})[0]["message"]
+    if message == "":
         info = db[form].find({"_id": id})[0]
         message = templates.translation[form](info)
         col.update_one({"jsjid": id}, {"$set": {"message": message}})
