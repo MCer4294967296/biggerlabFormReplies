@@ -48,7 +48,7 @@ def jinshujuIN():
     try:
         col.insert_one(info) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
-        return "400 you fked up: Duplicate Key", 500 # then err out;
+        return "400 you fked up: Duplicate Key", 400 # then err out;
         # we can also do a query instead of trying to insert, # TODO
 
     metaInit = metaInitializer.translation[form]
@@ -59,10 +59,10 @@ def jinshujuIN():
     try:
         col.insert_one(meta) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
-        return "400 you fked up: Duplicate Key", 500 # then err out;
+        return "400 you fked up: Duplicate Key", 400 # then err out;
         # we can also do a query instead of trying to insert, # TODO
 
-    return None, 200 # otherwise we are good
+    return "", 200 # otherwise we are good
 
     #itchat.send_msg(msg=message, toUserName="filehelper")
     #itchat.send_msg(msg=message, toUserName=itchat.search_friends(name="Rock大石头")[0]["UserName"])
