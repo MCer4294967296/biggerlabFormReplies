@@ -156,7 +156,10 @@ def sendPage(form=""):
 @app.route("/vendor/<fileName>", methods=["GET"])
 def vendor(fileName):
     vendors = {
-        "bootstrap.min.css": "vendor/bootstrap"
+        "bootstrap.min.css": "vendor/bootstrap/css/",
+        "jquery.slim.min.js": "vendor/jquery/",
+        "bootstrap.min.js": "vendor/bootstrap/js/",
+        "popper.min.js": "vendor/"
     }
     file = open(vendors[fileName] + fileName, 'r')
     return ''.join(file.readlines), 200
