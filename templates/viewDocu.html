@@ -16,22 +16,17 @@ body {
 <div class="container">
   <div class="row">
     <div class="col-4">
-      <div class="card" style="height: 350px">
-        <ul class="list-group" style="max-height: 300px; margin-bottom: 10px; overflow-y: auto;">
-          {% for item in leftList %}
-            <li class="list-group-item list-group-item-action" id="{{ item.id }}">{{ item.studentName }}</li>
-          {% endfor %}
-          <li class="list-group-item list-group-item-action">hohoho</li>
-        </ul>
-      </div>
+      <ul class="list-group" style="max-height: 300px; margin-bottom: 10px; overflow-y: auto;">
+        {% for item in leftList %}
+          <li class="list-group-item list-group-item-action" id="{{ item.id }}">{{ item.studentName }}</li>
+        {% endfor %}
+        <li class="list-group-item list-group-item-action">hohoho</li>
+      </ul>
     </div>
     <div class="col-8">
-      <div class="card" id="messageID"></div>
-      <div class="w-100"></div>
-      <div class="form-group">
-        <input type="text" class="form-control" id="message2Send" style="height: 300px">
-      </div>
-      <div class="w-100"></div>
+      <div class="card" id="msgID">Message ID: 000</div>
+      <textarea class="form-control" rows=20 id="message2Send">haha</textarea>
+      <!--<input type="text" class="form-control" id="message2Send" style="height: 300px" value="haasdfha">-->
       <button type="submit" class="btn btn-primary" id="sendButton">Send</button>
     </div>
   </div>
@@ -55,14 +50,26 @@ body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script>
-  let button = document.getElementById("sendButton");
-  button.addEventListener("click", sendToWechat);
-  $('#sendButton').click(sendToWechat)
-  var currid = $('')
   function sendToWechat() {
-    postData('http://47.100.121.67:5050/sendToWechat', { "id": $currid, "form": "biggerlab course feedback" }) // FIXME
-      .then(data => alert(data)); // arrow function syntax. data is the fetched data
+    postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text, "form": "biggerlab course feedback" }) // FIXME
+    .then(data => alert(data)); // arrow function syntax. data is the fetched data
   }
+  $('#sendButton').click(sendToWechat)
+  document.getElementsByClassName
+
+  $('li.list-group-item-action').click(function(e) {
+    var xhr = new XMLHttpRequest;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        alert("haha")
+        $('#message2Send').text(xhr.responseText);
+      }
+    }
+    var id = e.target.id;
+    var url = "http://47.100.121.67:5050/getPage/biggerlab course feedback/" + id;
+    xhr.open("GET", url, true);
+    xhr.send()
+  })
 
   // FIXME: customize your request
   function postData(url = '', data = {}) {

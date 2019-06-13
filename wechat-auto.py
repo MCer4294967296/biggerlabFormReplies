@@ -113,7 +113,7 @@ def sendToWechat():
 
 
 @app.route("/getPage/<form>", methods=["GET"])
-def sendPage(form=""):
+def getPage(form=""):
     idStart = request.args.get("idStart")
     idEnd = request.args.get("idEnd")
     if not idStart and not idEnd:
@@ -152,6 +152,16 @@ def sendPage(form=""):
                    .replace("$message", message)
     return docu, 200
     '''
+
+
+@app.route("/getMessage/<form>/<id>", methods=["GET"])
+def getMessage(form, id):
+    id = int(id)
+    col = db[form]
+    info = col.find({"_id": id})[0]
+    message = templates.tranlsation[form](info)
+    return message, 200
+
 
 @app.route("/vendor/<fileName>", methods=["GET"])
 def vendor(fileName):
