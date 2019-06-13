@@ -118,23 +118,27 @@ def sendPage(form=""):
     idEnd = request.args.get("idEnd")
     if not idStart and not idEnd:
         idStart = 0
+        idEnd = 10
     elif not idStart:
         idEnd = int(idEnd)
         idStart = idEnd - 10
     elif not idEnd:
         idStart = int(idStart)
         idEnd = idStart + 10
+    else:
+        idStart = int(idStart)
+        idEnd = int(idEnd)
     print(idStart, idEnd)
     #id = int(id)
 
     col = db[form]
-    messageList = []
+    leftList = []
     for id in range(idStart, idEnd):
         info = col.find({"_id": id})[0]
         #message = templates.translation[form](info)
         item = {"id": info["_id"], "studentName": info["studentName"]}
         leftList.append(item)
-    return render_template("webpages/viewDocu.html", messageList=messageList)
+    return render_template("viewDocu.html", leftList=leftList)
 
     '''
     message = ret[0]
@@ -153,9 +157,9 @@ def sendPage(form=""):
 ec = lambda : print("Logout Successful.")
 
 if __name__ == '__main__':
-    #itchat.auto_login(loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
+    itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
-    #db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
+    db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
     print("hah") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    app.run(host='0.0.0.0', port=5050, debug=False)
