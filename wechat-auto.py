@@ -153,6 +153,13 @@ def sendPage(form=""):
     return docu, 200
     '''
 
+@app.route("/vendor/<fileName>", methods=["GET"])
+def vendor(fileName):
+    vendors = {
+        "bootstrap.min.css": "vendor/bootstrap"
+    }
+    file = open(vendors[fileName] + fileName, 'r')
+    return ''.join(file.readlines), 200
 
 ec = lambda : print("Logout Successful.")
 
