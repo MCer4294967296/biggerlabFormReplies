@@ -94,14 +94,15 @@ def sendToWechat():
     if not request.is_json:
         return "400 BAD REQUEST: Data is not a json, rejecting.", 400
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
-    if jsonObj["form"] == "" or int(jsonObj["id"]) <= 0:
+    if jsonObj["form"] == "" or jsonObj["id"] is None or int(jsonObj["id"]) <= 0:
         return "400 BAD REQUEST: Unexpected data.", 400
 
     form = jsonObj["form"] # get the unique form name
+    id = int(jsonObj["id"])
 
     col = db[form] # access the database
 
-    info = col.find({"_id": jsonObj["id"]})[0] # retrieve the information
+    info = col.find({"_id": id})[0] # retrieve the information
 
     #template = templates.translation[form] # grab the template
     #message = template(info) # formulate the message
@@ -110,7 +111,7 @@ def sendToWechat():
 
     itchat.send(msg=message, toUserName=target) # send the message
     col = db["meta" + form]
-    col.update_one({'id': jsonObj['id']}, {'$set': {'sentToWechat': True}}) # update the database
+    col.update_one({'id': id}, {'$set': {'sentToWechat': True}}) # update the database
 
     return "200 OK", 200
 
