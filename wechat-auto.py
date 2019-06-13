@@ -4,6 +4,7 @@ from flask_cors import CORS
 import parseForms
 import templates
 import formNameTranslation
+import metaInitializer
 import pymongo
 import itchat
 
@@ -53,6 +54,7 @@ def jinshujuIN():
     metaInit = metaInitializer.translation[form]
     meta = metaInit(jsonObj["entry"])
     meta.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
+    meta["message"] = getMessage(form, id)[0]
     col = db["meta" + form]
     try:
         col.insert_one(meta) # try inserting,
@@ -67,7 +69,6 @@ def jinshujuIN():
 
     #提交类型判断需有修改,当前只有Course Time Submission后执行推送
     """
-    submitTypes = ['Course Time Submission','Brainstorm Document Submission','Project Document Submission','Technical Realization Stage Report','Project Publication(End of Project)']
     
     groupName = 'BP-' + beforeSend['field_2'] +'-'
     group = itchat.search_chatrooms(name=groupName)
@@ -93,16 +94,18 @@ def sendToWechat():
     if not request.is_json:
         return "400 BAD REQUEST: Data is not a json, rejecting.", 400
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
-    if jsonObj['form'] == "" or int(jsonObj['id']) <= 0:
+    if jsonObj["form"] == "" or int(jsonObj["id"]) <= 0:
         return "400 BAD REQUEST: Unexpected data.", 400
 
-    form = jsonObj['form'] # get the unique form name
+    form = jsonObj[:form"] # get the unique form name
 
     col = db[form] # access the database
 
-    info = col.find({"_id": jsonObj['id']})[0] # retrieve the information
-    template = templates.translation[form] # grab the template
-    message = template(info) # formulate the message
+    info = col.find({"_id": jsonObj["id"]})[0] # retrieve the information
+
+    #template = templates.translation[form] # grab the template
+    #message = template(info) # formulate the message
+    message = jsonObj["message"]
     target = "filehelper" # placeholder, should be from info
 
     itchat.send(msg=message, toUserName=target) # send the message
@@ -134,10 +137,14 @@ def getPage(form=""):
     col = db[form]
     leftList = []
     for id in range(idStart, idEnd):
-        info = col.find({"_id": id})[0]
+        try:
+            info = col.find({"_id": id})[0]
+        except:
+            continue
         #message = templates.translation[form](info)
         item = {"id": info["_id"], "studentName": info["studentName"]}
         leftList.append(item)
+    
     return render_template("viewDocu.html", leftList=leftList)
 
     '''
@@ -158,8 +165,12 @@ def getPage(form=""):
 def getMessage(form, id):
     id = int(id)
     col = db[form]
+    meta = col.find({"jsjid": id})[0]
+    return meta["message"], 200
+
+
     info = col.find({"_id": id})[0]
-    message = templates.tranlsation[form](info)
+    message = templates.translation[form](info)
     return message, 200
 
 
@@ -174,7 +185,6 @@ def vendor(fileName):
     file = open(vendors[fileName] + fileName, 'r')
     return ''.join(file.readlines), 200
 
-ec = lambda : print("Logout Successful.")
 
 if __name__ == '__main__':
     itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
