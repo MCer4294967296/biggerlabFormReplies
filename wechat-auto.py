@@ -168,7 +168,7 @@ def getMessage(form, id):
     meta = col.find({"jsjid": id})[0]
     if meta["message"] == "":
         info = db[form].find({"_id": id})[0]
-        col.update_one({"jsjid": id}, {$inc: {"message": templates.translation[form](info)}})
+        col.update_one({"jsjid": id}, {"$set": {"message": templates.translation[form](info)}})
     return meta["message"], 200
 
 
