@@ -112,12 +112,31 @@ def sendToWechat():
     return "200 OK", 200
 
 
-@app.route("/getPage/<form>/<id>", methods=["GET"])
-def sendPage(form="", id=-1):
-    id = int(id)
-    ret = getMessage(form, id)
-    if ret[1] == 404:
-        return "404 NOT FOUND"
+@app.route("/getPage/<form>", methods=["GET"])
+def sendPage(form=""):
+    idStart = request.args.get("idStart")
+    idEnd = request.args.get("idEnd")
+    if not idStart and not idEnd:
+        idStart = 0
+    elif not idStart:
+        idEnd = int(idEnd)
+        idStart = idEnd - 10
+    elif not idEnd:
+        idStart = int(idStart)
+        idEnd = idStart + 10
+    print(idStart, idEnd)
+    #id = int(id)
+
+    col = db[form]
+    messageList = []
+    for id in range(idStart, idEnd):
+        info = col.find({"_id": id})[0]
+        #message = templates.translation[form](info)
+        item = {"id": info["_id"], "studentName": info["studentName"]}
+        leftList.append(item)
+    return render_template("webpages/viewDocu.html", messageList=messageList)
+
+    '''
     message = ret[0]
     with open("templates/viewDocu.html", 'r') as f:
         docu = '\n'.join(f.readlines())
@@ -128,24 +147,15 @@ def sendPage(form="", id=-1):
                    .replace("$currid", str(id))\
                    .replace("$message", message)
     return docu, 200
+    '''
 
-
-@app.route("/getMessage/<form>/<id>", methods=["GET"])
-def getMessage(form="", id=-1):
-    col = db[form]
-    try:
-        info = col.find({"_id": int(id)})[0]
-    except:
-        return "404 NOT FOUND", 404
-    return templates.translation[form](info), 200
-    
 
 ec = lambda : print("Logout Successful.")
 
 if __name__ == '__main__':
-    itchat.auto_login(loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
+    #itchat.auto_login(loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
-    db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
+    #db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
     print("hah") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050)
+    app.run(host='0.0.0.0', port=5050, debug=True)
