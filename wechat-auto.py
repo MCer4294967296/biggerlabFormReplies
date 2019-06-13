@@ -97,7 +97,7 @@ def sendToWechat():
     if jsonObj["form"] == "" or int(jsonObj["id"]) <= 0:
         return "400 BAD REQUEST: Unexpected data.", 400
 
-    form = jsonObj[:form"] # get the unique form name
+    form = jsonObj["form"] # get the unique form name
 
     col = db[form] # access the database
 
