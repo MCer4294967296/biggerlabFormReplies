@@ -57,12 +57,13 @@ body {
 <script>
 
   var server = "47.100.121.67:5050"
-  var server = "localhost"
+  //var server = "localhost"
   function sendToWechat() {
     var id = document.getElementById("msgID").textContent;
-    var url = "http://" + server + "/sendToWechat/";
+    var url = "http://" + server + "/sendToWechat";
 
     var xhr = new XMLHttpRequest;
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
         var jsonData = JSON.parse(xhr.responseText);
