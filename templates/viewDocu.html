@@ -24,13 +24,15 @@ body {
       </ul>
     </div>
     <div class="col-8">
-      <div class="card" id="msgID">Message ID: </div>
-      <input class="form-control" type="text" id="message2Send" value="">
-      <button type="submit" class="btn btn-primary" id="sendButton">Send</button>
-      <!--<input class="btn btn-primary" type="submit" value="Send" onclick="sendToWechat">-->
-      <!--<textarea class="form-control" rows=20 id="message2Send"></textarea>
-      <input type="text" class="form-control" id="message2Send" style="height: 300px" value="haasdfha">
-      <button type="submit" class="btn btn-primary" id="saveButton">Save</button>-->
+      <div class="row">
+        <div class="col-4">Message ID: </div>
+        <div class="col-4" id="msgID">5</div>
+      </div>
+      <form>
+        <textarea class="form-control" rows=20 id="message2Send"></textarea>
+      </form>
+      <button class="btn btn-primary" id="sendButton">Send</button>
+      <button class="btn btn-primary" id="saveButton">Save</button>
     </div>
   </div>
 </div>
@@ -53,9 +55,11 @@ body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script>
+
   var server = "47.100.121.67:5050"
+  var server = "localhost"
   function sendToWechat() {
-    var id = $('#msgID').text();
+    var id = document.getElementById("msgID").textContent;
     var url = "http://" + server + "/sendToWechat/";
 
     var xhr = new XMLHttpRequest;
@@ -67,19 +71,17 @@ body {
     }
     xhr.open("POST", url, true);
     xhr.send(JSON.stringify({
-      "id": $('#msgID').text(),
+      "id": id,
       "form": "biggerlab course feedback",
-      "message": $('#message2Send').val()
+      "message": document.getElementById("message2Send").textContent
     }))
     /*
     postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text(), "form": "biggerlab course feedback", "message": $('#message2Send').val()}) // FIXME
     .then(data => alert(data)); // arrow function syntax. data is the fetched data*/
   }
-  $('#sendButton').click(sendToWechat)
+  document.getElementById("sendButton").onclick = sendToWechat
 
-
-  $('#saveButton').click(() => {})
-
+  // document.getElementById("saveButton").onclick;
   function getInfo(e) {
     var id = e.target.id;
     var url = "http://" + server + "/getMessage/biggerlab course feedback/" + id;
@@ -88,14 +90,16 @@ body {
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
         var jsonData = JSON.parse(xhr.responseText);
-        $('#msgID').text("Message ID: " + jsonData.id)
-        $('#message2Send').val(jsonData.message).trigger("change");
+        document.getElementById("msgID").value = jsonData.id;
+        document.getElementById("message2Send").value = jsonData.message;
       }
     }
     xhr.open("GET", url, true);
     xhr.send()
   }
-  $('li.list-group-item-action').click(getInfo)
+  //$('li.list-group-item-action').click(getInfo)
+  [].forEach.call(document.getElementsByClassName("list-group-item-action"),
+    function (btn) {btn.onclick = getInfo});
 
 
   // FIXME: customize your request
