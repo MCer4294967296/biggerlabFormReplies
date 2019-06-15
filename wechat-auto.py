@@ -160,7 +160,7 @@ def getPage(form=""):
     if len(leftList) == 0:
         return render_template("viewDocu.html")
     prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID)
-    nextLink = "{base_url}?idEnd={nextID}".format(base_url=request.base_url, nextID=nextID)
+    nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID)
     return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink)
 
 
