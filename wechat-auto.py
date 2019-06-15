@@ -25,13 +25,12 @@ def getroom_message(n):
 @app.route("/jinshujuIN", methods=["POST"])
 def jinshujuIN():
     if not request.is_json:
-        abort(400)
-        print("Data is not a json, rejecting.")
-
-    jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False)) 
+        return "400 BAD REQUEST: Data is not a json, rejecting.", 400
+        
+    jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
 
     form = formNameTranslation.translation[jsonObj["form"]] # get the unique form name
-    # if form != translator.translate(jsonObj["form_name"]): THEN WE PROBABLY NEED TO MAINTAIN THE DICTIONARY
+    id = int(jsonObj["entry"]["serial_number"])
 
     # bot = Bot(console_qr=True, cache_path=True)
     # 群组不活跃的情况下，群组搜索出错。
@@ -41,7 +40,6 @@ def jinshujuIN():
 
     parser = parseForms.translation[form] # from the unique form name, we get the parser.
     info = parser(jsonObj["entry"]) # parse the information out,
-    id = int(jsonObj["entry"]["serial_number"])
     info.update({"_id" : id})
     col = db[form] # access the database.
 
@@ -54,15 +52,13 @@ def jinshujuIN():
     metaInit = metaInitializer.translation[form]
     metaInfo = metaInit(jsonObj["entry"])
     metaInfo.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
-    #meta["message"] = getMessage(form, id)[0]
     meta = db["meta" + form]
     try:
         meta.insert_one(metaInfo) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
         return "400 you fked up: Duplicate Key", 400 # then err out;
-        # we can also do a query instead of trying to insert, # TODO
 
-    return "", 200 # otherwise we are good
+    return "200 OK", 200 # otherwise we are good
 
     #itchat.send_msg(msg=message, toUserName="filehelper")
     #itchat.send_msg(msg=message, toUserName=itchat.search_friends(name="Rock大石头")[0]["UserName"])
@@ -100,11 +96,8 @@ def sendToWechat():
     id = int(jsonObj["id"])
 
     col = db[form] # access the database
-
     info = col.find({"_id": id})[0] # retrieve the information
 
-    #template = templates.translation[form] # grab the template
-    #message = template(info) # formulate the message
     message = jsonObj["message"]
     target = "filehelper" # placeholder, should be from info
 
@@ -124,31 +117,49 @@ def findLast10(form):
 @app.route("/getPage/<form>", methods=["GET"])
 def getPage(form=""):
     idStart = request.args.get("idStart")
-    if not idStart:
-        idStart = findLast10(form)
-    try:
-        idStart = int(idStart)
-    except:
-        return "400 BAD REQUEST: idStart is not valid.", 400
-    idEnd = idStart + 10
-    #id = int(id)
+    idEnd = request.args.get("idEnd")
+    if idStart or idEnd:
+        try:
+            idEnd = int(idEnd) if idEnd else None
+            idStart = int(idStart) if idStart else None
+        except:
+            return "400 BAD REQUEST: id is not valid.", 400
 
     col = db[form]
+    docs = col.find()
+    chosen = []
+    if idStart and idEnd:
+        chosen = docs.where("this['_id'] >= {idStart} && this['_id'] <= {idEnd}").format(idStart=idStart, idEnd=idEnd)
+        prevID = idStart - 1
+        nextID = idEnd + 1
+    elif idStart:
+        match = docs.where("this['_id'] >= {idStart}".format(idStart=idStart))
+        chosen = match[:10]
+        prevID = idStart - 1
+        nextID = chosen[-1]["_id"] + 1 if len(match) > 10 else None
+    elif idEnd:
+        match = docs.where("this['_id'] <= {idEnd}".format(idEnd=idEnd))
+        chosen = match[-10:]
+        prevID = chosen[0]["_id"] - 1 if len(match) > 10 else None
+        nextID = idEnd + 1
+    else:
+        match = docs.sort("_id", pymongo.DESCENDING)
+        chosen = match[-10:]
+        prevID = chosen[0]["_id"] - 1 if len(match) > 10 else None
+        nextID = None
+    
     meta = db["meta" + form]
     leftList = []
-    for id in range(idStart, idEnd):
-        try:
-            info = col.find({"_id": id})[0]
-            metainfo = meta.find({"jsjid": id})[0]
-        except:
-            continue
-        #message = templates.translation[form](info)
-        item = {"id": info["_id"], "studentName": info["studentName"] + (" (已发送)" if metainfo["sentToWechat"] else "")}
+    for doc in chosen:
+        id = doc["_id"]
+        metainfo = meta.find({"jsjid": id})[0]
+        item = {"id": id, "studentName": doc["studentName"] + (" (已发送)" if metainfo["sentToWechat"] else "")}
         leftList.append(item)
+    
     if len(leftList) == 0:
         return render_template("viewDocu.html")
-    prevLink = request.base_url + "?idStart=" + str(idStart - 10)
-    nextLink = request.base_url + "?idStart=" + str(idStart + 10)
+    prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID)
+    nextLink = "{base_url}?idEnd={nextID}".format(base_url=request.base_url, nextID=nextID)
     return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink)
 
 
