@@ -29,10 +29,10 @@ body {
       {% else %}
       <h3> Index range is out of bounds. Please try to get yourself back using the buttons below. </h3>
       {% endif %}
-      {% if prevLink is defined %}
+      {% if none(prevLink) %}
       <a href="{{ prevLink }}">Prev 10</a>
       {% endif %}
-      {% if nextLink is defined %}
+      {% if none(nextLink) %}
       <a href="{{ nextLink }}">Next 10</a>
       {% endif %}
     </div>
