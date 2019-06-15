@@ -143,7 +143,7 @@ def getPage(form=""):
         prevID = chosen[-1]["_id"] - 1 # if len(match) > 10 else None
         nextID = idEnd + 1
     else:
-        match = list(docs.sort("_id", pymongo.ASCENDING))
+        match = list(docs.sort("_id", pymongo.DESCENDING))
         chosen = match[:10]
         prevID = chosen[-1]["_id"] - 1 # if len(match) > 10 else None
         nextID = None
