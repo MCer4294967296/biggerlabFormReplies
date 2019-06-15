@@ -84,6 +84,7 @@ body {
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
         //var jsonData = JSON.parse(xhr.responseText);
+        document.getElementById(id).textContent += " (已发送)"
         alert("Message is sent.")
       }
     }
@@ -108,7 +109,6 @@ body {
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
         //var jsonData = JSON.parse(xhr.responseText);
-        document.getElementById(id).textContent += " (已发送)"
         alert("Message is saved.")
       }
     }
