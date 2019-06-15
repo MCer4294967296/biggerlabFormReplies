@@ -63,7 +63,6 @@ body {
     var url = "http://" + server + "/sendToWechat";
 
     var xhr = new XMLHttpRequest;
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
         var jsonData = JSON.parse(xhr.responseText);
@@ -71,10 +70,11 @@ body {
       }
     }
     xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({
       "id": id,
       "form": "biggerlab course feedback",
-      "message": document.getElementById("message2Send").textContent
+      "message": document.getElementById("message2Send").value
     }))
     /*
     postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text(), "form": "biggerlab course feedback", "message": $('#message2Send').val()}) // FIXME
@@ -96,29 +96,12 @@ body {
       }
     }
     xhr.open("GET", url, true);
-    xhr.send()
+    xhr.send();
   }
   //$('li.list-group-item-action').click(getInfo)
   [].forEach.call(document.getElementsByClassName("list-group-item-action"),
     function (btn) {btn.onclick = getInfo});
 
-
-  // FIXME: customize your request
-  function postData(url = '', data = {}) {
-    // Default options are marked with *
-    return fetch(url, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, cors, *same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrer: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(data), // body data type must match "Content-Type" header
-    }).then(response => response); // parses JSON response into native Javascript objects 
-  }
 </script>
 </body>
 </html>
