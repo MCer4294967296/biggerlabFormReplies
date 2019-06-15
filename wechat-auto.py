@@ -69,7 +69,6 @@ def jinshujuIN():
 
     #提交类型判断需有修改,当前只有Course Time Submission后执行推送
     """
-    
     groupName = 'BP-' + beforeSend['field_2'] +'-'
     group = itchat.search_chatrooms(name=groupName)
     if group:
@@ -116,23 +115,22 @@ def sendToWechat():
     return "200 OK", 200
 
 
+def findLast10(form):
+    col = db[form]
+    doc = col.find().sort("_id", pymongo.DESCENDING)[0]
+    return max(doc["_id"] - 10, 0)
+
+
 @app.route("/getPage/<form>", methods=["GET"])
 def getPage(form=""):
     idStart = request.args.get("idStart")
-    idEnd = request.args.get("idEnd")
-    if not idStart and not idEnd:
-        idStart = 0
-        idEnd = 10
-    elif not idStart:
-        idEnd = int(idEnd)
-        idStart = idEnd - 10
-    elif not idEnd:
+    if not idStart:
+        idStart = findLast10(form)
+    try:
         idStart = int(idStart)
-        idEnd = idStart + 10
-    else:
-        idStart = int(idStart)
-        idEnd = int(idEnd)
-    print(idStart, idEnd)
+    except:
+        return "400 BAD REQUEST: idStart is not valid.", 400
+    idEnd = idStart + 10
     #id = int(id)
 
     col = db[form]
@@ -145,21 +143,32 @@ def getPage(form=""):
         #message = templates.translation[form](info)
         item = {"id": info["_id"], "studentName": info["studentName"]}
         leftList.append(item)
-    
-    return render_template("viewDocu.html", leftList=leftList)
+    if len(leftList) == 0:
+        return render_template("viewDocu.html")
+    prevLink = request.base_url + "?idStart=" + str(idStart - 10)
+    nextLink = request.base_url + "?idStart=" + str(idStart + 10)
+    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink)
 
-    '''
-    message = ret[0]
-    with open("templates/viewDocu.html", 'r') as f:
-        docu = '\n'.join(f.readlines())
-        docu = docu.replace("$message", message)\
-                   .replace("$form", form)\
-                   .replace("$previd", str(id - 1))\
-                   .replace("$nextid", str(id + 1))\
-                   .replace("$currid", str(id))\
-                   .replace("$message", message)
-    return docu, 200
-    '''
+
+@app.route("/saveToDB", methods=["POST"])
+def saveToDB():
+    if not request.is_json:
+        return "400 BAD REQUEST: Data is not a json, rejecting.", 400
+    jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
+    if jsonObj["form"] == "" or jsonObj["id"] is None or int(jsonObj["id"]) <= 0:
+        return "400 BAD REQUEST: Unexpected data.", 400
+
+    form = jsonObj["form"] # get the unique form name
+    id = int(jsonObj["id"])
+    messageToSave = jsonObj["message"]
+
+    col = db["meta" + form] # access the database
+    try:
+        result = col.update_one({"jsjid": id}, {"$set": {"message": message, "edited": True}})
+    except:
+        return "400 BAD REQUEST: ? I don't know what's bad but yea.", 400
+    return "200 OK: Message Saved.", 200
+    
 
 
 @app.route("/getMessage/<form>/<id>", methods=["GET"])
@@ -182,8 +191,11 @@ def vendor(fileName):
         "bootstrap.min.js": "vendor/bootstrap/js/",
         "popper.min.js": "vendor/"
     }
-    file = open(vendors[fileName] + fileName, 'r')
-    return ''.join(file.readlines), 200
+    try:
+        file = open(vendors[fileName] + fileName, 'r')
+    except FileNotFoundError:
+        return "404 Not Found: the vendor file you requested is not available", 404
+    return ''.join(file.readlines()), 200
 
 
 if __name__ == '__main__':
@@ -191,5 +203,5 @@ if __name__ == '__main__':
     # login when starting the server instead of doing it when data arrives
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
-    print("hah") # ¯¯¯¯\_(ツ)_/¯¯¯¯
+    print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
     app.run(host='0.0.0.0', port=5050, debug=False)
