@@ -129,21 +129,21 @@ def getPage(form=""):
     docs = col.find()
     chosen = []
     if idStart and idEnd:
-        chosen = docs.where("this['_id'] >= {idStart} && this['_id'] <= {idEnd}").format(idStart=idStart, idEnd=idEnd)
+        chosen = list(docs.where("this['_id'] >= {idStart} && this['_id'] <= {idEnd}").format(idStart=idStart, idEnd=idEnd))
         prevID = idStart - 1
         nextID = idEnd + 1
     elif idStart:
-        match = docs.where("this['_id'] >= {idStart}".format(idStart=idStart))
+        match = list(docs.where("this['_id'] >= {idStart}".format(idStart=idStart)))
         chosen = match[:10]
         prevID = idStart - 1
         nextID = chosen[-1]["_id"] + 1 if len(match) > 10 else None
     elif idEnd:
-        match = docs.where("this['_id'] <= {idEnd}".format(idEnd=idEnd))
+        match = list(docs.where("this['_id'] <= {idEnd}".format(idEnd=idEnd)))
         chosen = match[-10:]
         prevID = chosen[0]["_id"] - 1 if len(match) > 10 else None
         nextID = idEnd + 1
     else:
-        match = docs.sort("_id", pymongo.DESCENDING)
+        match = list(docs.sort("_id", pymongo.DESCENDING))
         chosen = match[-10:]
         prevID = chosen[0]["_id"] - 1 if len(match) > 10 else None
         nextID = None
