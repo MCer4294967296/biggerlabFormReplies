@@ -164,7 +164,7 @@ def saveToDB():
 
     col = db["meta" + form] # access the database
     try:
-        result = col.update_one({"jsjid": id}, {"$set": {"message": message, "edited": True}})
+        result = col.update_one({"jsjid": id}, {"$set": {"message": messageToSave, "edited": True}})
     except:
         return "400 BAD REQUEST: ? I don't know what's bad but yea.", 400
     return "200 OK: Message Saved.", 200
