@@ -129,6 +129,8 @@ body {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
+        document.getElementsByClassName("list-group-item-action")[0].classList.remove("active")
+        document.getElementById(id).classList.add("active");
         var jsonData = JSON.parse(xhr.responseText);
         document.getElementById("msgID").textContent = jsonData.id;
         document.getElementById("message2Send").value = jsonData.message;
