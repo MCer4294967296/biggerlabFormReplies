@@ -136,16 +136,16 @@ def getPage(form=""):
         match = list(docs.where("this['_id'] >= {idStart}".format(idStart=idStart)).sort("_id", pymongo.DESCENDING))
         chosen = match[-10:]
         prevID = idStart - 1
-        nextID = chosen[0]["_id"] + 1 # if len(match) > 10 else None
+        nextID = chosen[0]["_id"] + 1 if len(match) > 10 else None
     elif idEnd:
         match = list(docs.where("this['_id'] <= {idEnd}".format(idEnd=idEnd)).sort("_id", pymongo.DESCENDING))
         chosen = match[:10]
-        prevID = chosen[-1]["_id"] - 1 # if len(match) > 10 else None
+        prevID = chosen[-1]["_id"] - 1 if len(match) > 10 else None
         nextID = idEnd + 1
     else:
         match = list(docs.sort("_id", pymongo.DESCENDING))
         chosen = match[:10]
-        prevID = chosen[-1]["_id"] - 1 # if len(match) > 10 else None
+        prevID = chosen[-1]["_id"] - 1 if len(match) > 10 else None
         nextID = None
     
     meta = db["meta" + form]
@@ -159,8 +159,8 @@ def getPage(form=""):
     
     if len(leftList) == 0:
         return render_template("viewDocu.html")
-    prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID)
-    nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID)
+    prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else ""
+    nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else ""
     return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink)
 
 
