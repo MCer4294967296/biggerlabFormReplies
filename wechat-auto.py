@@ -52,12 +52,12 @@ def jinshujuIN():
         # we can also do a query instead of trying to insert, # TODO
 
     metaInit = metaInitializer.translation[form]
-    meta = metaInit(jsonObj["entry"])
-    meta.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
+    metaInfo = metaInit(jsonObj["entry"])
+    metaInfo.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
     #meta["message"] = getMessage(form, id)[0]
     meta = db["meta" + form]
     try:
-        meta.insert_one(meta) # try inserting,
+        meta.insert_one(metaInfo) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
         return "400 you fked up: Duplicate Key", 400 # then err out;
         # we can also do a query instead of trying to insert, # TODO
