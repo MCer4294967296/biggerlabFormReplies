@@ -130,7 +130,7 @@ body {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
-        document.getElementsByClassName("list-group-item-action")[0].classList.remove("active")
+        document.getElementsByClassName("list-group-item-action active")[0].classList.remove("active")
         document.getElementById(id).classList.add("active");
 
         var jsonData = JSON.parse(xhr.responseText);
