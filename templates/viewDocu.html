@@ -130,7 +130,8 @@ body {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
-        document.getElementsByClassName("list-group-item-action active")[0].classList.remove("active")
+        [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
+          function (btn) {btn.classList.remove("active")});
         document.getElementById(id).classList.add("active");
 
         var jsonData = JSON.parse(xhr.responseText);
@@ -141,7 +142,6 @@ body {
     xhr.open("GET", url, true);
     xhr.send();
   }
-  //$('li.list-group-item-action').click(getInfo)
   [].forEach.call(document.getElementsByClassName("list-group-item-action"),
     function (btn) {btn.onclick = getInfo});
 
