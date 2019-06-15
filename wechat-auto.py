@@ -55,9 +55,9 @@ def jinshujuIN():
     meta = metaInit(jsonObj["entry"])
     meta.update({"jsjid" : id}) # jinshuju id, this is probably not the main key, so we don't use "_id"
     #meta["message"] = getMessage(form, id)[0]
-    col = db["meta" + form]
+    meta = db["meta" + form]
     try:
-        col.insert_one(meta) # try inserting,
+        meta.insert_one(meta) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
         return "400 you fked up: Duplicate Key", 400 # then err out;
         # we can also do a query instead of trying to insert, # TODO
@@ -109,8 +109,8 @@ def sendToWechat():
     target = "filehelper" # placeholder, should be from info
 
     itchat.send(msg=message, toUserName=target) # send the message
-    col = db["meta" + form]
-    col.update_one({'id': id}, {'$set': {'sentToWechat': True}}) # update the database
+    meta = db["meta" + form]
+    meta.update_one({'id': id}, {'$set': {'sentToWechat': True}}) # update the database
 
     return "200 OK", 200
 
@@ -134,14 +134,16 @@ def getPage(form=""):
     #id = int(id)
 
     col = db[form]
+    meta = db["meta" + form]
     leftList = []
     for id in range(idStart, idEnd):
         try:
             info = col.find({"_id": id})[0]
+            metainfo = meta.find({"jsjid": id})[0]
         except:
             continue
         #message = templates.translation[form](info)
-        item = {"id": info["_id"], "studentName": info["studentName"]}
+        item = {"id": info["_id"], "studentName": info["studentName"] + ("( 已发送)" if metainfo["sentToWechat"] else "")}
         leftList.append(item)
     if len(leftList) == 0:
         return render_template("viewDocu.html")
@@ -162,9 +164,9 @@ def saveToDB():
     id = int(jsonObj["id"])
     messageToSave = jsonObj["message"]
 
-    col = db["meta" + form] # access the database
+    meta = db["meta" + form] # access the database
     try:
-        result = col.update_one({"jsjid": id}, {"$set": {"message": messageToSave, "edited": True}})
+        result = meta.update_one({"jsjid": id}, {"$set": {"message": messageToSave, "edited": True}})
     except:
         return "400 BAD REQUEST: ? I don't know what's bad but yea.", 400
     return "200 OK: Message Saved.", 200
@@ -174,12 +176,12 @@ def saveToDB():
 @app.route("/getMessage/<form>/<id>", methods=["GET"])
 def getMessage(form, id):
     id = int(id)
-    col = db["meta" + form]
-    message = col.find({"jsjid": id})[0]["message"]
+    meta = db["meta" + form]
+    message = meta.find({"jsjid": id})[0]["message"]
     if message == "":
         info = db[form].find({"_id": id})[0]
         message = templates.translation[form](info)
-        col.update_one({"jsjid": id}, {"$set": {"message": message}})
+        meta.update_one({"jsjid": id}, {"$set": {"message": message}})
     return jsonify({"id": id, "message": message})
 
 
