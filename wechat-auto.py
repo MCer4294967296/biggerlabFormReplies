@@ -110,7 +110,7 @@ def sendToWechat():
 
     itchat.send(msg=message, toUserName=target) # send the message
     meta = db["meta" + form]
-    meta.update_one({'id': id}, {'$set': {'sentToWechat': True}}) # update the database
+    meta.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
 
     return "200 OK", 200
 
