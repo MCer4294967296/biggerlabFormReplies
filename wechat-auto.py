@@ -118,7 +118,7 @@ def sendToWechat():
 def findLast10(form):
     col = db[form]
     doc = col.find().sort("_id", pymongo.DESCENDING)[0]
-    return max(doc["_id"] - 10, 0)
+    return max(doc["_id"] - 9, 0)
 
 
 @app.route("/getPage/<form>", methods=["GET"])
@@ -143,7 +143,7 @@ def getPage(form=""):
         except:
             continue
         #message = templates.translation[form](info)
-        item = {"id": info["_id"], "studentName": info["studentName"] + ("( 已发送)" if metainfo["sentToWechat"] else "")}
+        item = {"id": info["_id"], "studentName": info["studentName"] + (" (已发送)" if metainfo["sentToWechat"] else "")}
         leftList.append(item)
     if len(leftList) == 0:
         return render_template("viewDocu.html")
