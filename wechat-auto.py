@@ -151,14 +151,14 @@ def getPage(form=""):
         leftList.append(item)
 
     wechatInfo = {}
-    wechatInfo.update({ "wechatLoggedIn": itchat.originInstance.alive })
-    wechatInfo.update({ "wechatNickname": itchat.get_friends()[0]["NickName"] if wechatLoggedIn else "" })
-    
+    wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
+    wechatInfo["wechatNickName"] = itchat.get_friends()[0] if wechatInfo["wechatLoggedIn"] else ""
+
     if len(leftList) == 0:
         return render_template("viewDocu.html", wechatInfo=wechatInfo)
     prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
     nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
-    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, loggedIn=loggedIn, wechatInfo=wechatInfo)
+    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, wechatInfo=wechatInfo)
 
 
 @app.route("/saveToDB", methods=["POST"])
