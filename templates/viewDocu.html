@@ -16,6 +16,19 @@ body {
 
 <body>
 <p><h1>必果编程社</h1></p>
+{% if wechatInfo.loggedIn == True %}
+<h3>
+  <img src="/static/wechatHeadImg.png">
+  <p>Logged in as: {{ wechatInfo.wechatNickname }}</p>
+  <button class="btn btn-primary" id="logoutButton">logout</button>
+</h3>
+{% else %}
+<h3>
+    <p>You are not logged in.</p>
+    <button class="btn btn-primary" id="loginButton">login</button>
+    <a href="/static/QRviewer.html">click this if the button above doesn't bring up a new page.</a>
+</h3>
+{% endif %}
 <div class="container">
   <div class="row">
     <div class="col-4">
@@ -74,8 +87,8 @@ body {
 -->
 <script>
 
-  var server = "47.100.121.67:5050"
-  //var server = "localhost"
+  //var server = "47.100.121.67:5050"
+  var server = "localhost:5050"
   function sendToWechat() {
     var id = document.getElementById("msgID").textContent;
     var url = "http://" + server + "/sendToWechat";
@@ -107,10 +120,10 @@ body {
 
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        //var jsonData = JSON.parse(xhr.responseText);
-        alert("Message is saved.")
-      }
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          //var jsonData = JSON.parse(xhr.responseText);
+          alert("Message is saved.")
+        }
     }
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -145,6 +158,41 @@ body {
   [].forEach.call(document.getElementsByClassName("list-group-item-action"),
     function (btn) {btn.onclick = getInfo});
 
+
+  function login(e) {
+    var xhr = new XMLHttpRequest;
+    var windowOpened = false;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 400) {
+        // it is already logged in.
+        location.reload(true);
+      } else if (xhr.readyState == 4 && xhr.status == 200) {
+        // it is successfully logged in.
+        location.reload(true);
+      } else {
+        if (!windowOpened) {
+          window.open("http://" + server + "/static/QRviewer.html", "_blank");
+          windowOpened = true;
+        }
+      }
+    }
+    xhr.open("GET", "http://" + server + "/login", true);
+    xhr.send();
+  }
+  document.getElementById("loginButton").onclick = login;
+
+
+  function logout(e) {
+    var xhr = new XMLHttpRequest;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        location.reload(true);
+      }
+    }
+    xhr.open("GET", "http://" + server + "/logout", true);
+    xhr.send();
+  }
+  document.getElementById("logoutButton").onclick = logout;
 </script>
 </body>
 </html>

@@ -23,7 +23,7 @@ def getroom_message(n):
 def jinshujuIN():
     if not request.is_json:
         return "400 BAD REQUEST: Data is not a json, rejecting.", 400
-        
+
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
 
     form = formNameTranslation.translation[jsonObj["form"]] # get the unique form name
@@ -73,7 +73,7 @@ def jinshujuIN():
     time.sleep(0.5)
 
     #1小时后itchat刷新，维持在线状态
-    
+
     #afterSend未定义，if判断未执行状态下，会报错建议写入if条件下
     #target_group.send(afterSend)
     #bot.join()
@@ -87,6 +87,9 @@ def sendToWechat():
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
     if jsonObj["form"] == "" or jsonObj["id"] is None or int(jsonObj["id"]) <= 0:
         return "400 BAD REQUEST: Unexpected data.", 400
+
+    if not itchat.originInstance.alive:
+        return "401 UNAUTHORIZED: You need to log in first.", 401
 
     form = jsonObj["form"] # get the unique form name
     id = int(jsonObj["id"])
@@ -137,7 +140,7 @@ def getPage(form=""):
         chosen = match[:10]
         prevID = chosen[-1]["_id"] - 1 if len(match) > 10 else None
         nextID = None
-    
+
     meta = db["meta" + form]
     leftList = []
     for i in range(len(chosen)):
@@ -146,12 +149,16 @@ def getPage(form=""):
         metainfo = meta.find({"jsjid": id})[0]
         item = {"id": id, "studentName": doc["studentName"] + (" (已发送)" if metainfo["sentToWechat"] else "")}
         leftList.append(item)
+
+    wechatInfo = {}
+    wechatInfo.update({ "wechatLoggedIn": itchat.originInstance.alive })
+    wechatInfo.update({ "wechatNickname": itchat.get_friends()[0]["NickName"] if wechatLoggedIn else "" })
     
     if len(leftList) == 0:
-        return render_template("viewDocu.html")
+        return render_template("viewDocu.html", wechatInfo=wechatInfo)
     prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
     nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
-    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink)
+    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, loggedIn=loggedIn, wechatInfo=wechatInfo)
 
 
 @app.route("/saveToDB", methods=["POST"])
@@ -172,7 +179,7 @@ def saveToDB():
     except:
         return "400 BAD REQUEST: ? I don't know what's bad but yea.", 400
     return "200 OK: Message Saved.", 200
-    
+
 
 
 @app.route("/getMessage/<form>/<id>", methods=["GET"])
@@ -187,23 +194,37 @@ def getMessage(form, id):
     return jsonify({"id": id, "message": message})
 
 
-@app.route("/vendor/<fileName>", methods=["GET"])
-def vendor(fileName):
-    vendors = {
-        "bootstrap.min.css": "vendor/bootstrap/css/",
-        "jquery.slim.min.js": "vendor/jquery/",
-        "bootstrap.min.js": "vendor/bootstrap/js/",
-        "popper.min.js": "vendor/"
-    }
-    try:
-        file = open(vendors[fileName] + fileName, 'r')
-    except FileNotFoundError:
-        return "404 Not Found: the vendor file you requested is not available", 404
-    return ''.join(file.readlines()), 200
+@app.route("/regenMessage", methods=["POST"])
+def regenMessage():
+    pass
 
+
+def lc():
+    with open("static/wechatHeadImg.png", 'wb') as f:
+        f.write(itchat.get_head_img())
+    
+
+def ec():
+    pass
+
+
+@app.route("/login", methods=["GET"])
+def login():
+    if itchat.originInstance.alive:
+        return "400 BAD REQUEST: it's already logged in.", 400
+    itchat.auto_login(loginCallback=lc, exitCallback=ec)
+
+    return "200 OK: login complete.", 200
+    
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    itchat.logout()
+    return "200 OK: logout complete."
+    
 
 if __name__ == '__main__':
-    itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
+    # itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
