@@ -1,16 +1,13 @@
-import json
+import json, os
 from flask import Flask, abort, request, render_template, jsonify
 from flask_cors import CORS
-import parseForms
-import templates
-import formNameTranslation
-import metaInitializer
-import pymongo
-import itchat
+import pymongo, itchat
+import parseForms, templates, formNameTranslation, metaInitializer
 
 
 app = Flask(__name__)
 CORS(app)
+
 
 def getroom_message(n):
     #获取群的username，对群成员进行分析需要用到
@@ -63,7 +60,6 @@ def jinshujuIN():
     #itchat.send_msg(msg=message, toUserName="filehelper")
     #itchat.send_msg(msg=message, toUserName=itchat.search_friends(name="Rock大石头")[0]["UserName"])
 
-    #提交类型判断需有修改,当前只有Course Time Submission后执行推送
     """
     groupName = 'BP-' + beforeSend['field_2'] +'-'
     group = itchat.search_chatrooms(name=groupName)
@@ -106,12 +102,6 @@ def sendToWechat():
     meta.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
 
     return "200 OK", 200
-
-
-def findLast10(form):
-    col = db[form]
-    doc = col.find().sort("_id", pymongo.DESCENDING)[0]
-    return max(doc["_id"] - 9, 0)
 
 
 @app.route("/getPage/<form>", methods=["GET"])
