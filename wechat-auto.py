@@ -152,7 +152,7 @@ def getPage(form=""):
 
     wechatInfo = {}
     wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
-    wechatInfo["wechatNickName"] = itchat.get_friends()[0] if wechatInfo["wechatLoggedIn"] else ""
+    wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"] if wechatInfo["wechatLoggedIn"] else ""
 
     if len(leftList) == 0:
         return render_template("viewDocu.html", wechatInfo=wechatInfo)
@@ -202,7 +202,7 @@ def regenMessage():
 def lc():
     with open("static/wechatHeadImg.png", 'wb') as f:
         f.write(itchat.get_head_img())
-    
+    os.remove("QR.png")
 
 def ec():
     pass

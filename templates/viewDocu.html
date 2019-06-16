@@ -16,17 +16,17 @@ body {
 
 <body>
 <p><h1>必果编程社</h1></p>
-{% if wechatInfo.loggedIn == True %}
+{% if wechatInfo.wechatLoggedIn == True %}
 <h3>
   <img src="/static/wechatHeadImg.png">
-  <p>Logged in as: {{ wechatInfo.wechatNickname }}</p>
+  <p>Logged in as: {{ wechatInfo.wechatNickName }}</p>
   <button class="btn btn-primary" id="logoutButton">logout</button>
 </h3>
 {% else %}
 <h3>
     <p>You are not logged in.</p>
     <button class="btn btn-primary" id="loginButton">login</button>
-    <a href="/static/QRviewer.html">click this if the button above doesn't bring up a new page.</a>
+    <p><a href="/static/QRviewer.html">click this if the button above doesn't bring up a new page.</a></p>
 </h3>
 {% endif %}
 <div class="container">
@@ -179,7 +179,9 @@ body {
     xhr.open("GET", "http://" + server + "/login", true);
     xhr.send();
   }
-  document.getElementById("loginButton").onclick = login;
+  if (document.getElementById("loginButton") != null) {
+    document.getElementById("loginButton").onclick = login;
+  }
 
 
   function logout(e) {
@@ -192,7 +194,9 @@ body {
     xhr.open("GET", "http://" + server + "/logout", true);
     xhr.send();
   }
-  document.getElementById("logoutButton").onclick = logout;
+  if (document.getElementById("logoutButton") != null) {
+    document.getElementById("logoutButton").onclick = logout;
+  }
 </script>
 </body>
 </html>
