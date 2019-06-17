@@ -98,7 +98,8 @@ def sendToWechat():
     userNameList = []
     for target in targetList:
         if " || " in target:
-            nickName, remarkName = target.split(" || ")[0]
+            nickName, remarkName = target.split(" || ")
+            remarkName = remarkName if remarkName != "" else None
         userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
 
     col = db[form] # access the database
@@ -221,7 +222,7 @@ def lc():
     os.remove("QR.png")
     for f in os.listdir("static/wechatStuff"):
         if f.endswith(".jpg"):
-            subprocess.run(["convert", "static/wechatStuff/{}".format(f), "-resize", "100x100", "static/wechatStuff/{}".format(f)])
+            subprocess.run(["convert", "static/wechatStuff/{}".format(f), "-resize", "50x50", "static/wechatStuff/{}".format(f)])
 
 
 def ec():

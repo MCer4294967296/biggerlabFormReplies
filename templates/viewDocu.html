@@ -18,7 +18,7 @@ body {
 <p><h1>必果编程社</h1></p>
 {% if wechatInfo.wechatLoggedIn == True %}
 <h3>
-  <img src="/static/wechatHeadImg.jpg">
+  <img src="/static/wechatStuff/me.jpg">
   <p>Logged in as: {{ wechatInfo.wechatNickName }}</p>
   <button class="btn btn-primary" id="logoutButton" onclick="logout()">logout</button>
 </h3>
@@ -63,7 +63,7 @@ body {
       {% if wechatInfo.wechatContactList is defined %}
       <ul class="list-group">
         {% for item in wechatInfo.wechatContactList %}
-        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)">{{ item }}</li>
+        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)"><img src="/static/wechatStuff/{{ item }}.jpg">{{ item }}</li>
         {% endfor %}
       </ul>
       {% endif %}
@@ -99,7 +99,7 @@ body {
     [].forEach.call(document.getElementsByClassName("list-group-item-action"), 
       function (elem) {
         if (elem.id.startsWith("wechatList") && elem.classList.contains("active")) {
-          targetList.push(elem.id.slice(12));
+          targetList.push(elem.id.slice(10));
         }
       })
 
