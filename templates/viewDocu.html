@@ -18,14 +18,14 @@ body {
 <p><h1>必果编程社</h1></p>
 {% if wechatInfo.wechatLoggedIn == True %}
 <h3>
-  <img src="/static/wechatHeadImg.png">
+  <img src="/static/wechatHeadImg.jpg">
   <p>Logged in as: {{ wechatInfo.wechatNickName }}</p>
-  <button class="btn btn-primary" id="logoutButton">logout</button>
+  <button class="btn btn-primary" id="logoutButton" onclick="logout()">logout</button>
 </h3>
 {% else %}
 <h3>
     <p>You are not logged in.</p>
-    <button class="btn btn-primary" id="loginButton">login</button>
+    <button class="btn btn-primary" id="loginButton" onclick="login()">login</button>
     <p><a href="/static/QRviewer.html">click this if the button above doesn't bring up a new page.</a></p>
 </h3>
 {% endif %}
@@ -135,9 +135,7 @@ body {
   }
   document.getElementById("saveButton").onclick = saveToDB;
 
-  // document.getElementById("saveButton").onclick;
-  function getInfo(e) {
-    var id = e.target.id;
+    var id = elem.id.slice(8);
     var url = "http://" + server + "/getMessage/biggerlab course feedback/" + id;
     
     var xhr = new XMLHttpRequest;
@@ -155,8 +153,6 @@ body {
     xhr.open("GET", url, true);
     xhr.send();
   }
-  [].forEach.call(document.getElementsByClassName("list-group-item-action"),
-    function (btn) {btn.onclick = getInfo});
 
 
   function login(e) {
@@ -179,9 +175,6 @@ body {
     xhr.open("GET", "http://" + server + "/login", true);
     xhr.send();
   }
-  if (document.getElementById("loginButton") != null) {
-    document.getElementById("loginButton").onclick = login;
-  }
 
 
   function logout(e) {
@@ -193,9 +186,6 @@ body {
     }
     xhr.open("GET", "http://" + server + "/logout", true);
     xhr.send();
-  }
-  if (document.getElementById("logoutButton") != null) {
-    document.getElementById("logoutButton").onclick = logout;
   }
 </script>
 </body>

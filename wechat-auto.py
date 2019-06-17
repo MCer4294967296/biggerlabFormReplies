@@ -1,4 +1,4 @@
-import json, os
+import json, os, subprocess
 from flask import Flask, abort, request, render_template, jsonify
 from flask_cors import CORS
 import pymongo, itchat
@@ -200,12 +200,12 @@ def regenMessage():
 
 
 def lc():
-    with open("static/wechatHeadImg.png", 'wb') as f:
-        f.write(itchat.get_head_img())
+    itchat.get_head_img(picDir="static/wechatStuff/me.jpg")
     os.remove("QR.png")
 
 def ec():
-    pass
+    for f in os.listdir("static/wechatStuff"):
+        os.remove("static/wechatStuff/{}".format(f))
 
 
 @app.route("/login", methods=["GET"])

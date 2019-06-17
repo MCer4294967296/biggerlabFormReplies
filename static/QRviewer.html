@@ -4,11 +4,11 @@
   <title>QRCode Viewer</title>
 </head>
 <body>
-  <img src="QR.png" id="image"></img>
+  <img src="wechatStuff/QR.png" id="image"></img>
   <button id="refreshButton">Refresh</button>
 <script>
 function refresh(e) {
-  document.getElementById("image").src = "QR.png?" + Date.now();
+  document.getElementById("image").src = "wechatStuff/QR.png?" + Date.now();
   setTimeout(refresh, 1000);
 }
 window.onload = refresh;
