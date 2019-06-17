@@ -1,4 +1,4 @@
-import json, os, subprocess
+import json, os, subprocess, time, random
 from flask import Flask, abort, request, render_template, jsonify
 from flask_cors import CORS
 import pymongo, itchat
@@ -94,13 +94,22 @@ def sendToWechat():
     form = jsonObj["form"] # get the unique form name
     id = int(jsonObj["id"])
 
+    targetList = jsonObj["targetList"]
+    userNameList = []
+    for target in targetList:
+        if " || " in target:
+            nickName, remarkName = target.split(" || ")[0]
+        userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
+
     col = db[form] # access the database
     info = col.find({"_id": id})[0] # retrieve the information
 
     message = jsonObj["message"]
-    target = "filehelper" # placeholder, should be from info
+    for userName in userNameList:
+        itchat.send(msg=message, toUserName=userName)
+    # target = "filehelper" # placeholder, should be from info
 
-    itchat.send(msg=message, toUserName=target) # send the message
+    # itchat.send(msg=message, toUserName=target) # send the message
     meta = db["meta" + form]
     meta.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
 
@@ -152,7 +161,11 @@ def getPage(form=""):
 
     wechatInfo = {}
     wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
-    wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"] if wechatInfo["wechatLoggedIn"] else ""
+    if wechatInfo["wechatLoggedIn"]:
+        wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"] if wechatInfo["wechatLoggedIn"] else ""
+        wechatInfo["wechatContactList"] = [friend["NickName"] + " || " + friend["RemarkName"] for friend in itchat.get_friends()]
+        wechatInfo["wechatContactList"].extend([chatroom["NickName"] for chatroom in itchat.get_chatrooms()])
+    
 
     if len(leftList) == 0:
         return render_template("viewDocu.html", wechatInfo=wechatInfo)
@@ -201,7 +214,15 @@ def regenMessage():
 
 def lc():
     itchat.get_head_img(picDir="static/wechatStuff/me.jpg")
+    for chatroom in itchat.get_chatrooms(update=True):
+        itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(chatroom["NickName"]))
+    for friend in itchat.get_friends(update=True):
+        itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(friend["NickName"] + " || " + friend["RemarkName"]))
     os.remove("QR.png")
+    for f in os.listdir("static/wechatStuff"):
+        if f.endswith(".jpg"):
+            subprocess.run(["convert", "static/wechatStuff/{}".format(f), "-resize", "100x100", "static/wechatStuff/{}".format(f)])
+
 
 def ec():
     for f in os.listdir("static/wechatStuff"):
@@ -227,6 +248,15 @@ if __name__ == '__main__':
     # itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
+    rand = random.Random()
+
+    def send(self, msg, toUserName=None, mediaId=None):
+        global lastSentMsgTimestamp
+        while time.time() - lastSentMsgTimestamp < 3:
+            sleep(rand.random() + 1)
+        lastSentMsgTimestamp = time.time()
+        self.send(msg, toUserName, mediaId)
+    itchat.originInstance.send = send
     # prepare for the database
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
     app.run(host='0.0.0.0', port=5050, debug=False)
