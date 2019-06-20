@@ -187,30 +187,40 @@ def saveToDB():
     id = int(jsonObj["id"])
     messageToSave = jsonObj["message"]
 
-    meta = db["meta" + form] # access the database
-    try:
-        result = meta.update_one({"jsjid": id}, {"$set": {"message": messageToSave, "edited": True}})
-    except:
-        return "400 BAD REQUEST: ? I don't know what's bad but yea.", 400
-    return "200 OK: Message Saved.", 200
+    if messageToSave != genMessage(form, id):
+        meta = db["meta" + form] # access the database
+        try:
+            result = meta.update_one({"jsjid": id}, {"$set": {"message": messageToSave, "edited": True}})
+        except:
+            return "400 BAD REQUEST: ? I don't know what's bad but yea.", 400
+        return "200 OK: Message Saved.", 200
+    else:
+        return "200 OK: Message is not modified.", 200
 
 
 
-@app.route("/getMessage/<form>/<id>", methods=["GET"])
-def getMessage(form, id):
+@app.route("/getInfo/<form>/<id>", methods=["GET"])
+def getInfo(form, id):
     id = int(id)
-    meta = db["meta" + form]
-    message = meta.find({"jsjid": id})[0]["message"]
+    col = db[form]
+    mCol = db["meta" + form]
+    info = col.find({"_id": id})[0]
+    mInfo = mCol.find({"jsjid": id})[0]
+    
+    message = mInfo["message"]
     if message == "":
-        info = db[form].find({"_id": id})[0]
-        message = templates.translation[form](info)
-        meta.update_one({"jsjid": id}, {"$set": {"message": message}})
-    return jsonify({"id": id, "message": message})
+        message = genMessage(form, id)
+        mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
+    return jsonify({"id": id,
+                    "message": message,
+                    "studentName": info["studentName"],
+                    "teacherName": info["teacherName"],
+                    "reasonFilling": info["reasonFilling"],
+                    "messageEdited": mInfo["edited"]})
 
 
-@app.route("/regenMessage", methods=["POST"])
-def regenMessage():
-    pass
+def genMessage(form, id):
+    return templates.translation[form](db[form].find({"_id": id})[0])
 
 
 def lc():

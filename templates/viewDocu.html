@@ -16,24 +16,33 @@ body {
 
 <body>
 <p><h1>必果编程社</h1></p>
-{% if wechatInfo.wechatLoggedIn == True %}
-<h3>
-  <img src="/static/wechatStuff/me.jpg">
-  <p>Logged in as: {{ wechatInfo.wechatNickName }}</p>
-  <button class="btn btn-primary" id="logoutButton" onclick="logout()">logout</button>
-</h3>
-{% else %}
-<h3>
-    <p>You are not logged in.</p>
-    <button class="btn btn-primary" id="loginButton" onclick="login()">login</button>
-    <p><a href="/static/QRviewer.html">click this if the button above doesn't bring up a new page.</a></p>
-</h3>
-{% endif %}
+
 <div class="container">
   <div class="row">
-    <div class="col-4">
+    <div class="col">
+      {% if wechatInfo.wechatLoggedIn == True %}
+      <p>Logged in as: <img src="/static/wechatStuff/me.jpg"> {{ wechatInfo.wechatNickName }}</p>
+      <button class="btn btn-primary" id="logoutButton" onclick="logout()">logout</button>
+      {% else %}
+      <p>You are not logged in.</p>
+      <button class="btn btn-primary" id="loginButton" onclick="login()">login</button>
+      <p><a href="/static/QRviewer.html">click this if the button above doesn't bring up a new page.</a></p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2"></div>
+    <div class="col-6">
+      Message ID: <span id="msgID"></span>
+    </div>
+  </div>
+
+  <div class="row" style="max-height: 800px">
+
+    <div class="col-2">
       {% if leftList is defined %}
-      <ul class="list-group" style="max-height: 800px; margin-bottom: 10px; overflow-y: auto;">
+      <ul class="list-group" style="max-height: inherit; margin-bottom: 10px; overflow-y: auto;">
         {% for item in leftList %}
         <li class="list-group-item list-group-item-action" id="leftList{{ item.id }}" onclick="getInfo(this)">{{ item.studentName }}</li>
         {% endfor %}
@@ -48,22 +57,48 @@ body {
       <a href="{{ nextLink }}">Next 10</a>
       {% endif %}
     </div>
-    <div class="col-4">
-      <div class="row">
-        <div class="col-4">Message ID: </div>
-        <div class="col-4" id="msgID"></div>
+
+    <div class="col-6">
+      <div>
+        <form>
+          <textarea class="form-control" id="message2Send" rows=10></textarea>
+        </form>
       </div>
-      <form>
-        <textarea class="form-control" rows=20 id="message2Send"></textarea>
-      </form>
-      <button class="btn btn-primary" id="sendButton">Send</button>
-      <button class="btn btn-primary" id="saveButton">Save</button>
+      <div>
+        <button class="btn btn-primary" id="sendButton">Send</button>
+        <button class="btn btn-primary" id="saveButton">Save</button>
+      </div>
+      <div style="text-align: left">
+        <div class="row">
+          <div class="col" style="text-align: right"><label>Student Name</label></div>
+          <div class="col"><label id="studentName"></label></div>
+        </div>
+        <div class="row">
+          <div class="col" style="text-align: right"><label>Teacher Name</label></div>
+          <div class="col"><label id="teacherName"></label></div>
+        </div>
+        <div class="row">
+          <div class="col" style="text-align: right"><label>Message is edited</label></div>
+          <div class="col"><label id="messageEdited"></label></div>
+        </div>
+        <div class="row">
+          <div class="col" style="text-align: right"><label>Reason Filling</label></div>
+          <div class="col"><label id="reasonFilling"></input></div>
+        </div>
+      </div>
     </div>
+    
     <div class="col-4">
+      <!--
+      <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;">
+        <li class="list-group-item list-group-item-action" id="wechatListChris Zhang || 张牧远 Chris" onclick="switchActive(this)"><img src="/static/wechatStuff/Chris Zhang || 张牧远 Chris.jpg"> Chris Zhang || 张牧远 Chris</li>
+        <li class="list-group-item list-group-item-action" id="wechatListMCer4294967296 || " onclick="switchActive(this)"><img src="/static/wechatStuff/MCer4294967296 || .jpg"> MCer4294967296 || </li>
+      </ul>
+      -->
       {% if wechatInfo.wechatContactList is defined %}
-      <ul class="list-group">
+      <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;">
         {% for item in wechatInfo.wechatContactList %}
-        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)"><img src="/static/wechatStuff/{{ item }}.jpg">{{ item }}</li>
+        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)"><img src="/static/wechatStuff/{{ item }}.jpg"> {{ item }}</li>
         {% endfor %}
       </ul>
       {% endif %}
@@ -81,127 +116,143 @@ body {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 -->
 <script>
-  function switchActive(elem) {
+function switchActive(elem) {
     if (elem.classList.contains("active")) {
-      elem.classList.remove("active");
+        elem.classList.remove("active");
     } else {
-      elem.classList.add("active");
+        elem.classList.add("active");
     }
-  }
+}
 
-  //var server = "47.100.121.67:5050"
-  var server = "localhost:5050"
-  function sendToWechat() {
+//var server = "47.100.121.67:5050"
+var server = "localhost:5050"
+function sendToWechat() {
     var id = document.getElementById("msgID").textContent;
     var url = "http://" + server + "/sendToWechat";
 
     var targetList = [];
     [].forEach.call(document.getElementsByClassName("list-group-item-action"), 
-      function (elem) {
-        if (elem.id.startsWith("wechatList") && elem.classList.contains("active")) {
-          targetList.push(elem.id.slice(10));
-        }
-      })
-
-    var xhr = new XMLHttpRequest;
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        //var jsonData = JSON.parse(xhr.responseText);
-        if (!document.getElementById(id).textContent.endsWith(" (已发送)")) {
-          document.getElementById(id).textContent += " (已发送)"
-        }
-        alert("Message is sent.")
-      }
+        function (elem) {
+            if (elem.id.startsWith("wechatList") && elem.classList.contains("active")) {
+                targetList.push(elem.id.slice(10));
+            }
+        })
+    message = document.getElementById("message2Send").value
+    var confirmText = "You are about to send the message to these people/chatrooms:";
+    for (item of targetList) {
+      confirmText += "\n" + item;
     }
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify({
-      "id": id,
-      "form": "biggerlab course feedback",
-      "message": document.getElementById("message2Send").value,
-      "targetList": targetList
-    }))
+    targetList
+    if (confirm(confirmText)) {
+      var xhr = new XMLHttpRequest;
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4 && xhr.status == 200) {
+              //var jsonData = JSON.parse(xhr.responseText);
+              if (!document.getElementById(id).textContent.endsWith(" (已发送)")) {
+                  document.getElementById(id).textContent += " (已发送)"
+              }
+              alert("Message is sent.")
+          }
+      }
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      xhr.send(JSON.stringify({
+          "id": id,
+          "form": "biggerlab course feedback",
+          "message": document.getElementById("message2Send").value,
+          "targetList": targetList
+      }))
+    }
+    
     /*
     postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text(), "form": "biggerlab course feedback", "message": $('#message2Send').val()}) // FIXME
     .then(data => alert(data)); // arrow function syntax. data is the fetched data*/
-  }
-  document.getElementById("sendButton").onclick = sendToWechat;
+}
+document.getElementById("sendButton").onclick = sendToWechat;
 
-  function saveToDB() {
+function saveToDB() {
     var id = document.getElementById("msgID").textContent;
     var url = "http://" + server + "/saveToDB";
 
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          //var jsonData = JSON.parse(xhr.responseText);
-          alert("Message is saved.")
-        }
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                //var jsonData = JSON.parse(xhr.responseText);
+                alert("Message is saved.")
+            }
     }
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({
-      "id": id,
-      "form": "biggerlab course feedback",
-      "message": document.getElementById("message2Send").value
+        "id": id,
+        "form": "biggerlab course feedback",
+        "message": document.getElementById("message2Send").value
     }))
-  }
-  document.getElementById("saveButton").onclick = saveToDB;
+}
+document.getElementById("saveButton").onclick = saveToDB;
 
 
-  function getInfo(elem) {
+function getInfo(elem) {
     var id = elem.id.slice(8);
-    var url = "http://" + server + "/getMessage/biggerlab course feedback/" + id;
+    var url = "http://" + server + "/getInfo/biggerlab course feedback/" + id;
     
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
-          function (btn) {btn.classList.remove("active")});
-        document.getElementById(id).classList.add("active");
-
-        var jsonData = JSON.parse(xhr.responseText);
-        document.getElementById("msgID").textContent = jsonData.id;
-        document.getElementById("message2Send").value = jsonData.message;
-      }
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
+              function (btn) {
+                if (btn.id.startsWith("leftList")) {
+                  btn.classList.remove("active")
+                }
+              });
+              
+            var jsonData = JSON.parse(xhr.responseText);
+            document.getElementById("msgID").textContent = jsonData.id;
+            document.getElementById("message2Send").value = jsonData.message;
+            document.getElementById("studentName").textContent = jsonData.studentName;
+            document.getElementById("teacherName").textContent = jsonData.teacherName;
+            document.getElementById("messageEdited").textContent = jsonData.messageEdited;
+            document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
+            document.getElementById("leftList"+id).classList.add("active");
+        }
     }
     xhr.open("GET", url, true);
     xhr.send();
-  }
+}
 
 
-  function login(e) {
+function login(e) {
     var xhr = new XMLHttpRequest;
     var windowOpened = false;
     xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 400) {
-        // it is already logged in.
-        location.reload(true);
-      } else if (xhr.readyState == 4 && xhr.status == 200) {
-        // it is successfully logged in.
-        location.reload(true);
-      } else {
-        if (!windowOpened) {
-          window.open("http://" + server + "/static/QRviewer.html", "_blank");
-          windowOpened = true;
+        if (xhr.readyState == 4 && xhr.status == 400) {
+            // it is already logged in.
+            location.reload(true);
+        } else if (xhr.readyState == 4 && xhr.status == 200) {
+            // it is successfully logged in.
+            location.reload(true);
+        } else {
+            if (!windowOpened) {
+                window.open("http://" + server + "/static/QRviewer.html", "_blank");
+                windowOpened = true;
+            }
         }
-      }
     }
     xhr.open("GET", "http://" + server + "/login", true);
     xhr.send();
-  }
+}
 
 
-  function logout(e) {
+function logout(e) {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        location.reload(true);
-      }
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            location.reload(true);
+        }
     }
     xhr.open("GET", "http://" + server + "/logout", true);
     xhr.send();
-  }
+}
 </script>
 </body>
 </html>
