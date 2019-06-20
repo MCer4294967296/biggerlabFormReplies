@@ -40,7 +40,7 @@ body {
 
   <div class="row" style="max-height: 800px">
 
-    <div class="col-2">
+    <div class="col-2" style="max-height: inherit">
       {% if leftList is defined %}
       <ul class="list-group" style="max-height: inherit; margin-bottom: 10px; overflow-y: auto;">
         {% for item in leftList %}
@@ -88,7 +88,7 @@ body {
       </div>
     </div>
     
-    <div class="col-4">
+    <div class="col-4" style="max-height: inherit">
       <!--
       <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;">
         <li class="list-group-item list-group-item-action" id="wechatListChris Zhang || 张牧远 Chris" onclick="switchActive(this)"><img src="/static/wechatStuff/Chris Zhang || 张牧远 Chris.jpg"> Chris Zhang || 张牧远 Chris</li>
