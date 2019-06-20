@@ -164,10 +164,14 @@ def getPage(form=""):
     wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
     if wechatInfo["wechatLoggedIn"]:
         wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"] if wechatInfo["wechatLoggedIn"] else ""
-        wechatInfo["wechatContactList"] = [friend["NickName"] + " || " + friend["RemarkName"] for friend in itchat.get_friends()]
-        wechatInfo["wechatContactList"].extend([chatroom["NickName"] for chatroom in itchat.get_chatrooms()])
+        wechatInfo["wechatContactList"] = []
+        for friend in itchat.get_friends():
+            if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
+                wechatInfo.append(friend["NickName"] + " || " + friend["RemarkName"])
+        for chatroom in itchat.get_chatrooms():
+            if "/" not in chatroom["NickName"]
+                wechatInfo.append(chatroom["NickName"])
     
-
     if len(leftList) == 0:
         return render_template("viewDocu.html", wechatInfo=wechatInfo)
     prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
@@ -226,9 +230,11 @@ def genMessage(form, id):
 def lc():
     itchat.get_head_img(picDir="static/wechatStuff/me.jpg")
     for chatroom in itchat.get_chatrooms(update=True):
-        itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(chatroom["NickName"].replace("/", "\/")))
+        if "/" not in chatroom["NickName"]:
+            itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(chatroom["NickName"]))
     for friend in itchat.get_friends(update=True):
-        itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(friend["NickName"] + " || " + friend["RemarkName"]))
+        if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
+            itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(friend["NickName"] + " || " + friend["RemarkName"]))
     os.remove("QR.png")
     for f in os.listdir("static/wechatStuff"):
         if f.endswith(".jpg"):
