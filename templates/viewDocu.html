@@ -38,7 +38,7 @@ body {
     </div>
   </div>
 
-  <div class="row" style="max-height: 800px">
+  <div class="row" style="max-height: 600px">
 
     <div class="col-2" style="max-height: inherit">
       {% if leftList is defined %}
@@ -158,14 +158,14 @@ function sendToWechat() {
       xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       xhr.send(JSON.stringify({
           "id": id,
-          "form": "biggerlab course feedback",
+          "form": "BiggerlabCourseFeedback",
           "message": document.getElementById("message2Send").value,
           "targetList": targetList
       }))
     }
     
     /*
-    postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text(), "form": "biggerlab course feedback", "message": $('#message2Send').val()}) // FIXME
+    postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text(), "form": "BiggerlabCourseFeedback", "message": $('#message2Send').val()}) // FIXME
     .then(data => alert(data)); // arrow function syntax. data is the fetched data*/
 }
 document.getElementById("sendButton").onclick = sendToWechat;
@@ -185,7 +185,7 @@ function saveToDB() {
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({
         "id": id,
-        "form": "biggerlab course feedback",
+        "form": "BiggerlabCourseFeedback",
         "message": document.getElementById("message2Send").value
     }))
 }
@@ -194,7 +194,7 @@ document.getElementById("saveButton").onclick = saveToDB;
 
 function getInfo(elem) {
     var id = elem.id.slice(8);
-    var url = "http://" + server + "/getInfo/biggerlab course feedback/" + id;
+    var url = "http://" + server + "/getInfo/BiggerlabCourseFeedback/" + id;
     
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {

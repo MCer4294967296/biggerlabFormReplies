@@ -1,5 +1,5 @@
 translation = {
-    "34dBQf": "biggerlab course feedback",
-    "Biggerlab 课程反馈表": "biggerlab course feedback",
-    "hopuFU": "biggerlab course feedback",
+    "34dBQf": "BiggerlabCourseFeedback",
+    "Biggerlab 课程反馈表": "BiggerlabCourseFeedback",
+    "hopuFU": "BiggerlabCourseFeedback",
 }

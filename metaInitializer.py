@@ -9,5 +9,5 @@ def parseBiggerlabCourseFeedback(blob):
     
 
 translation = {
-    "biggerlab course feedback" : parseBiggerlabCourseFeedback
+    "BiggerlabCourseFeedback" : parseBiggerlabCourseFeedback
 }

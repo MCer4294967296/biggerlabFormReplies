@@ -275,7 +275,7 @@ if __name__ == '__main__':
             sleep(rand.random() + 1)
         lastSentMsgTimestamp = time.time()
         self.send(msg, toUserName, mediaId)
-    itchat.originInstance.send = send
+    itchat.send = send
     # prepare for the database
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
     app.run(host='0.0.0.0', port=5050, debug=False)

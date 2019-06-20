@@ -76,5 +76,5 @@ class CourseFeedback():
         
 
 translation = {
-    "biggerlab course feedback" : CourseFeedback.message
+    "BiggerlabCourseFeedback" : CourseFeedback.message
 }
