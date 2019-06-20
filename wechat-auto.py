@@ -245,7 +245,8 @@ def lc():
 
 def ec():
     for f in os.listdir("static/wechatStuff"):
-        os.remove("static/wechatStuff/{}".format(f))
+        if f != "QR.png":
+            os.remove("static/wechatStuff/{}".format(f))
 
 
 @app.route("/login", methods=["GET"])
