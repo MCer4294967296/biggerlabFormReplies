@@ -2,7 +2,6 @@ venv
 log
 *.pyc
 itchat.pkl
-QR.png
 .vscode
 __pycache__
 static/wechatStuff

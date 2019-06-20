@@ -163,9 +163,10 @@ def getPage(form=""):
         leftList.append(item)
 
     wechatInfo = {}
+    wechatInfo["wechatLoggingIn"] = os.path.isfile("static/wechatStuff/me.png")
     wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
     if wechatInfo["wechatLoggedIn"]:
-        wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"] if wechatInfo["wechatLoggedIn"] else ""
+        wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"]
         wechatInfo["wechatContactList"] = []
         for friend in itchat.get_friends():
             if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
@@ -230,18 +231,20 @@ def genMessage(form, id):
 
 
 def lc():
-    itchat.get_head_img(picDir="static/wechatStuff/me.jpg")
-    for chatroom in itchat.get_chatrooms(update=True):
+    itchat.get_head_img(picDir="static/wechatStuff/me.png")
+    subprocess.run(["convert", "static/wechatStuff/me.png", "-resize", "50x50", "static/wechatStuff/me.png"])
+    for chatroom in itchat.get_chatrooms():
         if "/" not in chatroom["NickName"]:
-            itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(chatroom["NickName"]))
-    for friend in itchat.get_friends(update=True):
+            fName = chatroom["NickName"]
+            itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(fName))
+            subprocess.run(["convert", "static/wechatStuff/{}.jpg".format(fName), "-resize", "50x50", "static/wechatStuff/{}.jpg".format(fName)])
+    for friend in itchat.get_friends():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
-            itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(friend["NickName"] + " || " + friend["RemarkName"]))
+            fName = friend["NickName"] + " || " + friend["RemarkName"]
+            itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(fName))
+            subprocess.run(["convert", "static/wechatStuff/{}.jpg".format(fName), "-resize", "50x50", "static/wechatStuff/{}.jpg".format(fName)])
     os.remove("QR.png")
-    for f in os.listdir("static/wechatStuff"):
-        if f.endswith(".jpg"):
-            subprocess.run(["convert", "static/wechatStuff/{}".format(f), "-resize", "50x50", "static/wechatStuff/{}".format(f)])
-
+    
 
 def ec():
     for f in os.listdir("static/wechatStuff"):
@@ -268,6 +271,7 @@ if __name__ == '__main__':
     # itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
     # login when starting the server instead of doing it when data arrives
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
+    # prepare for the database
     rand = random.Random()
 
     def send(self, msg, toUserName=None, mediaId=None):
@@ -277,6 +281,5 @@ if __name__ == '__main__':
         lastSentMsgTimestamp = time.time()
         self.send(msg, toUserName, mediaId)
     itchat.send = send
-    # prepare for the database
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050, debug=False)
+    app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
