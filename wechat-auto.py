@@ -226,7 +226,7 @@ def genMessage(form, id):
 def lc():
     itchat.get_head_img(picDir="static/wechatStuff/me.jpg")
     for chatroom in itchat.get_chatrooms(update=True):
-        itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(chatroom["NickName"]))
+        itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(chatroom["NickName"].replace("/", "\/")))
     for friend in itchat.get_friends(update=True):
         itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(friend["NickName"] + " || " + friend["RemarkName"]))
     os.remove("QR.png")
