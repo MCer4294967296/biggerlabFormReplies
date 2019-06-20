@@ -167,10 +167,10 @@ def getPage(form=""):
         wechatInfo["wechatContactList"] = []
         for friend in itchat.get_friends():
             if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
-                wechatInfo.append(friend["NickName"] + " || " + friend["RemarkName"])
+                wechatInfo["wechatContactList"].append(friend["NickName"] + " || " + friend["RemarkName"])
         for chatroom in itchat.get_chatrooms():
-            if "/" not in chatroom["NickName"]
-                wechatInfo.append(chatroom["NickName"])
+            if "/" not in chatroom["NickName"]:
+                wechatInfo["wechatContactList"].append(chatroom["NickName"])
     
     if len(leftList) == 0:
         return render_template("viewDocu.html", wechatInfo=wechatInfo)
