@@ -100,7 +100,9 @@ def sendToWechat():
         if " || " in target:
             nickName, remarkName = target.split(" || ")
             remarkName = remarkName if remarkName != "" else None
-        userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
+            userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
+        else:
+            userNameList.append(itchat.search_chatrooms(name=target)[0]["UserName"])
 
     col = db[form] # access the database
     info = col.find({"_id": id})[0] # retrieve the information
