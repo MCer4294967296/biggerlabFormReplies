@@ -119,8 +119,8 @@ def getPage(form=""):
     wechatInfo = {}
     wechatInfo["wechatLoggingIn"] = itchat.originInstance.isLogging
     wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
+    wechatInfo["wechatNickName"] = itchat.myNickName
     if wechatInfo["wechatLoggedIn"]:
-        wechatInfo["wechatNickName"] = itchat.get_friends()[0]["NickName"]
         wechatInfo["wechatContactList"] = []
         for friend in itchat.get_friends():
             if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
