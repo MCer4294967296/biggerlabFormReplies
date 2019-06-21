@@ -247,7 +247,7 @@ def lc():
     multiThreadMap(func, dirContent)
 
 
-def multiThreadMap(job, collection, threadCount = os.cpu_count):
+def multiThreadMap(job, collection, threadCount = os.cpu_count()):
     tCount = 1
     id = 0
     while tCount < threadCount:
