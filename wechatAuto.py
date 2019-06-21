@@ -9,7 +9,7 @@ from utils import *
 app = Flask(__name__)
 CORS(app)
 
-signal.signal(signal.SIGINT, handlerSIGINT)
+signal.signal(signal.SIGINT, handler)
 
 
 @app.route("/jinshujuIN", methods=["POST"])
