@@ -15,7 +15,7 @@ function refresh() {
       alert("You are logged in, the server is loading head images. Please wait patiently.");
     }
   }
-  xhr.open("GET", "/static/wechatStuff/me.png?" + Date.now());
+  xhr.open("GET", "/static/wechatStuff/loggingIn?" + Date.now());
   xhr.send()
 }
 

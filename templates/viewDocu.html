@@ -21,11 +21,11 @@ body {
   <div class="row">
     <div class="col">
       {% if wechatInfo.wechatLoggedIn == True %}
-      <p>Logged in as: <img src="/static/wechatStuff/me.png"> {{ wechatInfo.wechatNickName }}</p>
+      <p>Logged in as: <img src="/static/wechatStuff/{{ wechatInfo.wechatNickName }}.png"> {{ wechatInfo.wechatNickName }}</p>
       <button class="btn btn-primary" id="logoutButton" onclick="logout()">logout</button>
       {% else %}
         {% if wechatInfo.wechatLoggingIn == True %}
-        <p>You are logging in as: <img src="/static/wechatStuff/me.png"></p>
+        <p>You are logging in as: <img src="/static/wechatStuff/{{ wechatInfo.wechatNickName }}.png"></p>
         {% else %}
         <p>You are not logged in.</p>
         <button class="btn btn-primary" id="loginButton" onclick="login()">login</button>
@@ -102,12 +102,12 @@ body {
       {% if wechatInfo.wechatContactList is defined %}
       <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;">
         {% for item in wechatInfo.wechatContactList %}
-        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)"><img src="/static/wechatStuff/{{ item }}.jpg"> {{ item }}</li>
+        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)"><img src="/static/wechatStuff/{{ wechatInfo.wechatNickName }}/{{ item }}.jpg"> {{ item }}</li>
         {% endfor %}
       </ul>
       {% else %}
         {% if wechatInfo.loadedHeadPercentage is defined %}
-        <div>Loaded contact: {{ wechatInfo.loadedHeadPercentage }} / </div>
+        <div>Loaded contact: {{ wechatInfo.loadedHeadPercentage }}</div>
         {% endif %}
       {% endif %}
     </div>
