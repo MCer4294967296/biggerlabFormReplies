@@ -1,3 +1,5 @@
+import os, sys, itchat
+
 def multiThreadMap(job, collection, threadCount = os.cpu_count()):
     tCount = 1
     id = 0
