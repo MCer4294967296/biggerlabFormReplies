@@ -200,7 +200,7 @@ def lc():
             fName = friend["NickName"] + " || " + friend["RemarkName"]
             contactList.append({"type": "friend", "fName": fName, "UserName": friend["UserName"]})
     try:
-        os.listdir("haha")
+        os.mkdir("static/wechatStuff/{}".format(myNickName))
     except FileExistsError:
         pass
         
