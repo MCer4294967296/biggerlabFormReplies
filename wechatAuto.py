@@ -141,13 +141,12 @@ def getPage(form=""):
     elif wechatInfo["wechatLoggingIn"]:
         wechatInfo["loadedHeadPercentage"] = "{}/{}".format(len(os.listdir("static/wechatStuff/{}".format(itchat.myNickName)))-2,
                                                             len(itchat.get_chatrooms()) + len(itchat.get_friends()))
-    formName = form
 
     if len(leftList) == 0:
-        return render_template("viewDocu.html", wechatInfo=wechatInfo, formName=formName)
+        return render_template("viewDocu.html", wechatInfo=wechatInfo, formName=form)
     prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
     nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
-    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, wechatInfo=wechatInfo, formName=formName)
+    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, wechatInfo=wechatInfo, formName=form)
 
 
 @app.route("/saveToDB", methods=["POST"])
@@ -202,6 +201,8 @@ def lc():
     itchat.myNickName = itchat.search_friends()["NickName"].replace("/", "")
     itchat.get_head_img(picDir="static/wechatStuff/{}.png".format(itchat.myNickName))
     subprocess.run(["convert", "static/wechatStuff/{}.png".format(itchat.myNickName), "-resize", "50x50", "static/wechatStuff/{}.png".format(itchat.myNickName)])
+
+    cacheDir = "static/wechatStuff/{}".format(itchat.myNickName)
     contactList = []
     for chatroom in itchat.get_chatrooms():
         if "/" not in chatroom["NickName"]:
@@ -217,20 +218,21 @@ def lc():
     except FileExistsError:
         pass
         
-    dirContent = os.listdir("static/wechatStuff/{}".format(itchat.myNickName))
+    dirContent = os.listdir(cacheDir)
     logging.info("There are a total of {} head images cached.".format(len(dirContent)))
-    for contact in contactList:
+
+    for contact in list(contactList):
         if (contact["fName"] + ".jpg" in dirContent):
             contactList.remove(contact)
 
     open("static/wechatStuff/loggingIn", 'w').close()
+    logging.info("Requesting the remaining {} head images.".format(len(contactList)))
 
     def func(elem):
         if elem["type"] == "friend":
-            itchat.get_head_img(userName=elem["UserName"], picDir="static/wechatStuff/{}/{}.jpg".format(itchat.myNickName, elem["fName"]))
+            itchat.get_head_img(userName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, elem["fName"]))
         elif elem["type"] == "chatroom":
-            itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="static/wechatStuff/{}/{}.jpg".format(itchat.myNickName, elem["fName"]))
-    logging.info("Requesting the remaining {} head images.".format(len(contactList)))
+            itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, elem["fName"]))
     multiThreadMap(func, contactList, 1)
 
     def func(elem):
