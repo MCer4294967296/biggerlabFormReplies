@@ -106,8 +106,9 @@ body {
         {% endfor %}
       </ul>
       {% else %}
-        {% if wechatInfo.loadedHeadCount is defined %}
-        
+        {% if wechatInfo.loadedHeadPercentage is defined %}
+        <div>Loaded contact: {{ wechatInfo.loadedHeadPercentage }} / </div>
+        {% endif %}
       {% endif %}
     </div>
   </div>
