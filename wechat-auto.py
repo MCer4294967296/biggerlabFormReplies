@@ -171,7 +171,7 @@ def getPage(form=""):
             if "/" not in chatroom["NickName"]:
                 wechatInfo["wechatContactList"].append(chatroom["NickName"])
     elif wechatInfo["wechatLoggingIn"]:
-        wechatInfo["loadedHeadPercentage"] = "{}/{}".format(len(os.listdir("static/wechatStuff"))-2, len(itchat.get_chatrooms()) + len(itchat.get_friends))
+        wechatInfo["loadedHeadPercentage"] = "{}/{}".format(len(os.listdir("static/wechatStuff"))-2, len(itchat.get_chatrooms()) + len(itchat.get_friends()))
     formName = form
 
     if len(leftList) == 0:
