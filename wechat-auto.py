@@ -175,11 +175,13 @@ def getPage(form=""):
             if "/" not in chatroom["NickName"]:
                 wechatInfo["wechatContactList"].append(chatroom["NickName"])
     
+    formName = form
+
     if len(leftList) == 0:
-        return render_template("viewDocu.html", wechatInfo=wechatInfo)
+        return render_template("viewDocu.html", wechatInfo=wechatInfo, formName=formName)
     prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
     nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
-    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, wechatInfo=wechatInfo)
+    return render_template("viewDocu.html", leftList=leftList, prevLink=prevLink, nextLink=nextLink, wechatInfo=wechatInfo, formName=formName)
 
 
 @app.route("/saveToDB", methods=["POST"])
@@ -203,7 +205,6 @@ def saveToDB():
         return "200 OK: Message Saved.", 200
     else:
         return "200 OK: Message is not modified.", 200
-
 
 
 @app.route("/getInfo/<form>/<id>", methods=["GET"])
@@ -256,6 +257,8 @@ def ec():
 def login():
     if itchat.originInstance.alive:
         return "400 BAD REQUEST: it's already logged in.", 400
+    if "QR.png" in os.listdir():
+        return "400 BAD REQUEST: you are logging in.", 400
     itchat.auto_login(loginCallback=lc, exitCallback=ec)
 
     return "200 OK: login complete.", 200

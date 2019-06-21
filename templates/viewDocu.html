@@ -121,52 +121,51 @@ body {
 -->
 <script>
 function switchActive(elem) {
-    if (elem.classList.contains("active")) {
-        elem.classList.remove("active");
-    } else {
-        elem.classList.add("active");
-    }
+  if (elem.classList.contains("active")) {
+    elem.classList.remove("active");
+  } else {
+    elem.classList.add("active");
+  }
 }
 
 //var server = "47.100.121.67:5050"
 var server = "localhost:5050"
 function sendToWechat() {
-    var id = document.getElementById("msgID").textContent;
-    var url = "http://" + server + "/sendToWechat";
+  var id = document.getElementById("msgID").textContent;
+  var url = "http://" + server + "/sendToWechat";
 
-    var targetList = [];
-    [].forEach.call(document.getElementsByClassName("list-group-item-action"), 
-        function (elem) {
-            if (elem.id.startsWith("wechatList") && elem.classList.contains("active")) {
-                targetList.push(elem.id.slice(10));
-            }
-        })
-    message = document.getElementById("message2Send").value
-    var confirmText = "You are about to send the message to these people/chatrooms:";
-    for (item of targetList) {
-      confirmText += "\n" + item;
-    }
-    targetList
-    if (confirm(confirmText)) {
-      var xhr = new XMLHttpRequest;
-      xhr.onreadystatechange = function() {
-          if (xhr.readyState == 4 && xhr.status == 200) {
-              //var jsonData = JSON.parse(xhr.responseText);
-              if (!document.getElementById(id).textContent.endsWith(" (已发送)")) {
-                  document.getElementById(id).textContent += " (已发送)"
-              }
-              alert("Message is sent.")
-          }
+  var targetList = [];
+  [].forEach.call(document.getElementsByClassName("list-group-item-action"), 
+    function (elem) {
+      if (elem.id.startsWith("wechatList") && elem.classList.contains("active")) {
+        targetList.push(elem.id.slice(10));
       }
-      xhr.open("POST", url, true);
-      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-      xhr.send(JSON.stringify({
-          "id": id,
-          "form": "BiggerlabCourseFeedback",
-          "message": document.getElementById("message2Send").value,
-          "targetList": targetList
-      }))
+    })
+  message = document.getElementById("message2Send").value;
+  var confirmText = "You are about to send the message to these people/chatrooms:";
+  for (item of targetList) {
+    confirmText += "\n" + item;
+  }
+  if (confirm(confirmText)) {
+    var xhr = new XMLHttpRequest;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+          //var jsonData = JSON.parse(xhr.responseText);
+          if (!document.getElementById(id).textContent.endsWith(" (已发送)")) {
+              document.getElementById(id).textContent += " (已发送)"
+          }
+          alert("Message is sent.");
+      }
     }
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify({
+      "id": id,
+      "form": "{{ formName }}",
+      "message": document.getElementById("message2Send").value,
+      "targetList": targetList
+    }))
+  }
     
     /*
     postData('http://47.100.121.67:5050/sendToWechat', { "id": $('#msgID').text(), "form": "BiggerlabCourseFeedback", "message": $('#message2Send').val()}) // FIXME
@@ -175,87 +174,86 @@ function sendToWechat() {
 document.getElementById("sendButton").onclick = sendToWechat;
 
 function saveToDB() {
-    var id = document.getElementById("msgID").textContent;
-    var url = "http://" + server + "/saveToDB";
+  var id = document.getElementById("msgID").textContent;
+  var url = "http://" + server + "/saveToDB";
 
-    var xhr = new XMLHttpRequest;
-    xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                //var jsonData = JSON.parse(xhr.responseText);
-                alert("Message is saved.")
-            }
+  var xhr = new XMLHttpRequest;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      //var jsonData = JSON.parse(xhr.responseText);
+      alert("Message is saved.")
     }
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify({
-        "id": id,
-        "form": "BiggerlabCourseFeedback",
-        "message": document.getElementById("message2Send").value
-    }))
+  }
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xhr.send(JSON.stringify({
+    "id": id,
+    "form": "{{ formName }}",
+    "message": document.getElementById("message2Send").value
+  }))
 }
 document.getElementById("saveButton").onclick = saveToDB;
 
 
 function getInfo(elem) {
-    var id = elem.id.slice(8);
-    var url = "http://" + server + "/getInfo/BiggerlabCourseFeedback/" + id;
-    
-    var xhr = new XMLHttpRequest;
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
-              function (btn) {
-                if (btn.id.startsWith("leftList")) {
-                  btn.classList.remove("active")
-                }
-              });
-              
-            var jsonData = JSON.parse(xhr.responseText);
-            document.getElementById("msgID").textContent = jsonData.id;
-            document.getElementById("message2Send").value = jsonData.message;
-            document.getElementById("studentName").textContent = jsonData.studentName;
-            document.getElementById("teacherName").textContent = jsonData.teacherName;
-            document.getElementById("messageEdited").textContent = jsonData.messageEdited;
-            document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
-            document.getElementById("leftList"+id).classList.add("active");
-        }
+  var id = elem.id.slice(8);
+  var url = "http://" + server + "/getInfo/{{ formName }}/" + id;
+  
+  var xhr = new XMLHttpRequest;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
+        function (btn) {
+          if (btn.id.startsWith("leftList")) {
+            btn.classList.remove("active")
+          }});
+        
+      var jsonData = JSON.parse(xhr.responseText);
+      document.getElementById("msgID").textContent = jsonData.id;
+      document.getElementById("message2Send").value = jsonData.message;
+      document.getElementById("studentName").textContent = jsonData.studentName;
+      document.getElementById("teacherName").textContent = jsonData.teacherName;
+      document.getElementById("messageEdited").textContent = jsonData.messageEdited;
+      document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
+      document.getElementById("leftList"+id).classList.add("active");
     }
-    xhr.open("GET", url, true);
-    xhr.send();
+  }
+  xhr.open("GET", url, true);
+  xhr.send();
 }
 
 
 function login(e) {
-    var xhr = new XMLHttpRequest;
-    var windowOpened = false;
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 400) {
-            // it is already logged in.
-            location.reload(true);
-        } else if (xhr.readyState == 4 && xhr.status == 200) {
-            // it is successfully logged in.
-            location.reload(true);
-        } else {
-            if (!windowOpened) {
-                window.open("http://" + server + "/static/QRviewer.html", "_blank");
-                windowOpened = true;
-            }
-        }
+  var xhr = new XMLHttpRequest;
+  var windowOpened = false;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 400) {
+      // it is already logged in.
+      location.reload(true);
+    } else if (xhr.readyState == 4 && xhr.status == 200) {
+      // it is successfully logged in.
+      location.reload(true);
+    } else {
+      if (!windowOpened) {
+        window.open("http://" + server + "/static/QRviewer.html", "_blank");
+        windowOpened = true;
+      }
     }
-    xhr.open("GET", "http://" + server + "/login", true);
-    xhr.send();
+  }
+  xhr.open("GET", "http://" + server + "/login", true);
+  xhr.send();
 }
 
 
 function logout(e) {
-    var xhr = new XMLHttpRequest;
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            location.reload(true);
-        }
+  var xhr = new XMLHttpRequest;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      location.reload(true);
     }
-    xhr.open("GET", "http://" + server + "/logout", true);
-    xhr.send();
+  }
+  xhr.open("GET", "http://" + server + "/logout", true);
+  xhr.send();
 }
 </script>
 </body>

@@ -5,14 +5,24 @@
 </head>
 <body>
   <img src="/static/wechatStuff/QR.png" id="image"></img>
-  <button id="refreshButton">Refresh</button>
+  <button id="refreshButton" onclick="refresh()">Refresh</button>
 <script>
-function refresh(e) {
+function refresh() {
   document.getElementById("image").src = "/static/wechatStuff/QR.png?" + Date.now();
-  setTimeout(refresh, 1000);
+  var xhr = new XMLHttpRequest;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      alert("You are logged in, the server is loading head images. Please wait patiently.");
+    }
+  }
+  xhr.open("GET", "/static/wechatStuff/me.png");
+  xhr.send()
 }
-window.onload = refresh;
-document.getElementById("refreshButton").onclick = (() => { document.getElementById("image").src = "QR.png?" + Date.now(); });
+
+window.onload = function () {
+  refresh();
+  setTimeout(refresh, 5000);
+}
 
 </script>
 </body>
