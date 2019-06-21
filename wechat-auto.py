@@ -10,8 +10,9 @@ CORS(app)
 
 def handlerSIGINT(signal, frame):
     itchat.logout()
+    sys.exit(0)
 
-#signal.signal(signal.SIGINT, handlerSIGINT)
+signal.signal(signal.SIGINT, handlerSIGINT)
 
 
 @app.route("/jinshujuIN", methods=["POST"])
