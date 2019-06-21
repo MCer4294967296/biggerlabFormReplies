@@ -82,7 +82,7 @@ def sendToWechat():
         if message == "":
             message = genMessage(form, id)
             mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
-            
+
     for userName in userNameList:
         itchat.send(msg=message, toUserName=userName)
     # target = "filehelper" # placeholder, should be from info
@@ -188,7 +188,7 @@ def genMessage(form, id):
 
 def lc():
     myNickName = itchat.search_friends()["NickName"].replace("/", "")
-    itchat.get_head_img(picDir="static/wechatStuff/{}.png".format(myNickName)
+    itchat.get_head_img(picDir="static/wechatStuff/{}.png".format(myNickName))
     subprocess.run(["convert", "static/wechatStuff/{}.png".format(myNickName), "-resize", "50x50", "static/wechatStuff/{}.png".format(myNickName)])
     contactList = []
     for chatroom in itchat.get_chatrooms():
