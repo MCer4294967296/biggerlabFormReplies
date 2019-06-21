@@ -222,6 +222,7 @@ def lc():
 
 
 def ec():
+    print("Calling exit callback function.")
     try:
         os.remove("QR.png")
     except FileNotFoundError:
