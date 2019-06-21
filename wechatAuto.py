@@ -1,4 +1,4 @@
-import json, os, subprocess, time, random, signal, sys
+import json, os, subprocess, time, random, signal, sys, logging
 from flask import Flask, abort, request, render_template, jsonify, Response
 from flask_cors import CORS
 import pymongo, itchat
@@ -16,6 +16,7 @@ signal.signal(signal.SIGINT, handlerSIGINT)
 def jinshujuIN():
     # 群组test只有一个群的时候，搜索出错。
     if not request.is_json:
+        logging.warning("/jinshujuIN received non-json data.")
         return "400 BAD REQUEST: Data is not a json, rejecting.", 400
 
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
@@ -43,7 +44,7 @@ def jinshujuIN():
         meta.insert_one(metaInfo) # try inserting,
     except pymongo.errors.DuplicateKeyError: # if duplicate,
         return "400 you fked up: Duplicate Key", 400 # then err out;
-
+    logging.info("Entry added to databases.")
     return "200 OK", 200 # otherwise we are good
 
     #itchat.send_msg(msg=message, toUserName="filehelper")
@@ -53,12 +54,15 @@ def jinshujuIN():
 @app.route("/sendToWechat", methods=["POST"])
 def sendToWechat():
     if not request.is_json:
+        logging.warning("/sendToWechat received a non-json.")
         return "400 BAD REQUEST: Data is not a json, rejecting.", 400
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
     if jsonObj["form"] == "" or jsonObj["id"] is None or int(jsonObj["id"]) <= 0:
+        logging.warning("/sendToWechat received unexpected data.")
         return "400 BAD REQUEST: Unexpected data.", 400
 
     if not itchat.originInstance.alive:
+        logging.warning("/sendToWechat is requested when there's no wechat user logged in.")
         return "401 UNAUTHORIZED: You need to log in first.", 401
 
     form = jsonObj["form"] # get the unique form name
@@ -73,6 +77,8 @@ def sendToWechat():
             userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
         else:
             userNameList.append(itchat.search_chatrooms(name=target)[0]["UserName"])
+
+    logging.info("Requested wechat message sending.")
 
     mCol = db["meta" + form]
     try:
@@ -90,6 +96,8 @@ def sendToWechat():
     # itchat.send(msg=message, toUserName=target) # send the message
     mCol.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
 
+    logging.info("Message is sent")
+
     return "200 OK", 200
 
 
@@ -102,7 +110,9 @@ def getPage(form=""):
             idEnd = int(idEnd) if idEnd else None
             idStart = int(idStart) if idStart else None
         except:
+            logging.warning("/getPage received an invalid id range.")
             return "400 BAD REQUEST: id is not valid.", 400
+    logging.info("Page requested.")
     col = db[form]
     docs = col.find()
     chosen, prevID, nextID = getIDList(docs, idStart=idStart, idEnd=idEnd)
@@ -147,7 +157,7 @@ def saveToDB():
     jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
     if jsonObj["form"] == "" or jsonObj["id"] is None or int(jsonObj["id"]) <= 0:
         return "400 BAD REQUEST: Unexpected data.", 400
-
+    logging.info("Saving to databases requested.")
     form = jsonObj["form"] # get the unique form name
     id = int(jsonObj["id"])
     messageToSave = jsonObj["message"]
@@ -170,7 +180,7 @@ def getInfo(form, id):
     mCol = db["meta" + form]
     info = col.find({"_id": id})[0]
     mInfo = mCol.find({"jsjid": id})[0]
-    
+    logging.info("Information requested.")
     message = mInfo["message"]
     if message == "":
         message = genMessage(form, id)
@@ -184,6 +194,7 @@ def getInfo(form, id):
 
 
 def genMessage(form, id):
+    logging.info("An original message is generated.")
     return templates.translation[form](db[form].find({"_id": id})[0])
 
 
@@ -200,14 +211,14 @@ def lc():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
             fName = friend["NickName"] + " || " + friend["RemarkName"]
             contactList.append({"type": "friend", "fName": fName, "UserName": friend["UserName"]})
-
+    logging.info("There are a total of {} contacts to load.".format(len(contactList)))
     try:
         os.mkdir("static/wechatStuff/{}".format(itchat.myNickName))
     except FileExistsError:
         pass
         
     dirContent = os.listdir("static/wechatStuff/{}".format(itchat.myNickName))
-
+    logging.info("There are a total of {} head images cached.".format(len(dirContent)))
     for contact in contactList:
         if (contact["fName"] in dirContent):
             contactList.remove(contact)
@@ -219,20 +230,20 @@ def lc():
             itchat.get_head_img(userName=elem["UserName"], picDir="static/wechatStuff/{}/{}.jpg".format(itchat.myNickName, elem["fName"]))
         elif elem["type"] == "chatroom":
             itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="static/wechatStuff/{}/{}.jpg".format(itchat.myNickName, elem["fName"]))
-
+    logging.info("Requesting the remaining {} head images.".format(len(contactList)))
     multiThreadMap(func, contactList, 1)
 
     def func(elem):
         if elem.endswith(".jpg"):
             subprocess.run(["convert", "static/wechatStuff/{}/{}".format(itchat.myNickName, elem), "-resize", "50x50", "static/wechatStuff/{}/{}".format(itchat.myNickName, elem)])
-
+    logging.info("Head Images are all present, resizing the images.")
     multiThreadMap(func, dirContent)
 
     os.remove("static/wechatStuff/loggingIn")
-
+    logging.info("Login complete.")
 
 def ec():
-    print("Calling exit callback function.")
+    
     try:
         os.remove("static/wechatStuff/loggingIn")
     except FileNotFoundError:
@@ -250,6 +261,7 @@ def login():
         return "400 BAD REQUEST: it's already logged in.", 400
     if "QR.png" in os.listdir():
         return "400 BAD REQUEST: you are logging in.", 400
+    logging.warning("Login requested.")
     itchat.auto_login(loginCallback=lc, exitCallback=ec)
 
     return "200 OK: login complete.", 200
@@ -257,6 +269,7 @@ def login():
 
 @app.route("/logout", methods=["GET"])
 def logout():
+    logging.warning("Logout requested.")
     itchat.logout()
     return "200 OK: logout complete."
     
@@ -267,6 +280,8 @@ if __name__ == '__main__':
     db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
     # prepare for the database
     rand = random.Random()
+
+    logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
     def send(self, msg, toUserName=None, mediaId=None):
         global lastSentMsgTimestamp
