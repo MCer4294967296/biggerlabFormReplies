@@ -190,7 +190,7 @@ def genMessage(form, id):
 def lc():
     itchat.myNickName = itchat.search_friends()["NickName"].replace("/", "")
     itchat.get_head_img(picDir="static/wechatStuff/{}.png".format(itchat.myNickName))
-    subprocess.run(["convert", "static/wechatStuff/{}.png".format(itchat.myNickName), "-resize", "50x50", "static/wechatStuff/{}.png".format(myNickName)])
+    subprocess.run(["convert", "static/wechatStuff/{}.png".format(itchat.myNickName), "-resize", "50x50", "static/wechatStuff/{}.png".format(itchat.myNickName)])
     contactList = []
     for chatroom in itchat.get_chatrooms():
         if "/" not in chatroom["NickName"]:
