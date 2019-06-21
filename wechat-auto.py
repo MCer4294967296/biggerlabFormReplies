@@ -187,18 +187,32 @@ def genMessage(form, id):
 
 
 def lc():
-    itchat.get_head_img(picDir="static/wechatStuff/me.png")
-    subprocess.run(["convert", "static/wechatStuff/me.png", "-resize", "50x50", "static/wechatStuff/me.png"])
+    myNickName = itchat.search_friends()["NickName"].replace("/", "")
+    itchat.get_head_img(picDir="static/wechatStuff/{}.png".format(myNickName)
+    subprocess.run(["convert", "static/wechatStuff/{}.png".format(myNickName), "-resize", "50x50", "static/wechatStuff/{}.png".format(myNickName)])
+    contactList = []
     for chatroom in itchat.get_chatrooms():
         if "/" not in chatroom["NickName"]:
             fName = chatroom["NickName"]
-            itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(fName))
+            contactList.append({"type": "chatroom", "fName": fName, "UserName": chatroom["UserName"]})
     for friend in itchat.get_friends():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
             fName = friend["NickName"] + " || " + friend["RemarkName"]
-            itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(fName))
+            contactList.append({"type": "friend", "fName": fName, "UserName": friend["UserName"]})
 
     dirContent = os.listdir("static/wechatStuff")
+
+    for contact in contactList:
+        if (contact["fName"] in dirContent):
+            contactList.remove(contact)
+
+    def func(elem):
+        if elem["type"] == "friend":
+            itchat.get_head_img(userName=elem["UserName"], picDir="static/wechatStuff/{}/{}.jpg".format(myNickName, fName))
+        elif elem["type"] == "chatroom":
+            itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="static/wechatStuff/{}/{}.jpg".format(myNickName, fName))
+
+    multiThreadMap(func, contactList, 2)
 
     def func(elem):
         if elem.endswith(".jpg"):
