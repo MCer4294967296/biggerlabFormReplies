@@ -1,5 +1,6 @@
 import os, sys
 import itchat, pymongo
+from wechatAuto import ec
 
 def multiThreadMap(job, collection, threadCount = os.cpu_count()):
     tCount = 1
@@ -54,4 +55,5 @@ def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
 
 def handlerSIGINT(signal, frame):
     itchat.logout()
+    ec()
     sys.exit(0)
