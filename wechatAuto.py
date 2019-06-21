@@ -228,18 +228,16 @@ def lc():
     open("static/wechatStuff/loggingIn", 'w').close()
     logging.info("Requesting the remaining {} head images.".format(len(contactList)))
 
-    def func(elem):
-        if elem["type"] == "friend":
-            itchat.get_head_img(userName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, elem["fName"]))
-        elif elem["type"] == "chatroom":
-            itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, elem["fName"]))
-    multiThreadMap(func, contactList, 1)
+    for contact in contactList:
+        if contact["type"] == "friend":
+            itchat.get_head_img(userName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
+        elif contact["type"] == "chatroom":
+            itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
 
-    def func(elem):
-        if elem.endswith(".jpg"):
-            subprocess.run(["convert", "static/wechatStuff/{}/{}".format(itchat.myNickName, elem), "-resize", "50x50", "static/wechatStuff/{}/{}".format(itchat.myNickName, elem)])
     logging.info("Head Images are all present, resizing the images.")
-    multiThreadMap(func, dirContent)
+    for file in dirContent:
+        if file.endswith(".jpg"):
+            subprocess.run(["convert", "static/wechatStuff/{}/{}".format(itchat.myNickName, file), "-resize", "50x50", "static/wechatStuff/{}/{}".format(itchat.myNickName, file)])
 
     os.remove("static/wechatStuff/loggingIn")
     logging.info("Login complete.")
