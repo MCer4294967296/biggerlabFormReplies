@@ -281,8 +281,7 @@ if __name__ == '__main__':
     # prepare for the database
     rand = random.Random()
 
-    logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-
+    logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
     def limited_send(self, msg, toUserName=None, mediaId=None):
         global lastSentMsgTimestamp
         while time.time() - lastSentMsgTimestamp < 3:
