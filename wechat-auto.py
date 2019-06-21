@@ -199,8 +199,12 @@ def lc():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
             fName = friend["NickName"] + " || " + friend["RemarkName"]
             contactList.append({"type": "friend", "fName": fName, "UserName": friend["UserName"]})
-
-    dirContent = os.listdir("static/wechatStuff")
+    try:
+        os.listdir("haha")
+    except FileExistsError:
+        pass
+        
+    dirContent = os.listdir("static/wechatStuff/{}".format(myNickName))
 
     for contact in contactList:
         if (contact["fName"] in dirContent):
