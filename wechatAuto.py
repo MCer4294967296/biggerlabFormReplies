@@ -220,7 +220,7 @@ def lc():
     dirContent = os.listdir("static/wechatStuff/{}".format(itchat.myNickName))
     logging.info("There are a total of {} head images cached.".format(len(dirContent)))
     for contact in contactList:
-        if (contact["fName"] in dirContent):
+        if (contact["fName"] + ".jpg" in dirContent):
             contactList.remove(contact)
 
     open("static/wechatStuff/loggingIn", 'w').close()
@@ -283,14 +283,15 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
-    def send(self, msg, toUserName=None, mediaId=None):
+    def limited_send(self, msg, toUserName=None, mediaId=None):
         global lastSentMsgTimestamp
         while time.time() - lastSentMsgTimestamp < 3:
             sleep(rand.random() + 1)
         lastSentMsgTimestamp = time.time()
         self.send(msg, toUserName, mediaId)
 
-    itchat.send = send
+    itchat.originInstance.limited_send = limited_send
+    itchat.send = itchat.originInstance.limited_send
     itchat.myNickName = ""
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
     app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
