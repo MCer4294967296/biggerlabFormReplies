@@ -1,0 +1,2 @@
+#!/bin/bash
+for file in $1; do; convert $file -resize 50x50 $file; done

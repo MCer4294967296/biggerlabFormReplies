@@ -55,6 +55,11 @@ def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
 def handlerSIGINT(signal, frame):
     itchat.logout()
     try:
+        os.remove("static/wechatStuff/loggingIn.png")
+    except FileNotFoundError:
+        pass
+
+    try:
         os.remove("QR.png")
     except FileNotFoundError:
         pass

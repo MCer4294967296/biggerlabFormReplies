@@ -235,9 +235,7 @@ def lc():
             itchat.get_head_img(chatroomUserName=contact["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
 
     logging.info("Head Images are all present, resizing the images.")
-    for file in dirContent:
-        if file.endswith(".jpg"):
-            subprocess.run(["convert", "static/wechatStuff/{}/{}".format(itchat.myNickName, file), "-resize", "50x50", "static/wechatStuff/{}/{}".format(itchat.myNickName, file)])
+    subprocess.run(["bash", "resizing", "{}/*.jpg".format(cacheDir)])
 
     os.remove("static/wechatStuff/loggingIn")
     logging.info("Login complete.")
