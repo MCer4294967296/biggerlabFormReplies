@@ -272,7 +272,7 @@ def logout():
     logging.warning("Logout requested.")
     itchat.logout()
     return "200 OK: logout complete."
-    
+
 
 if __name__ == '__main__':
     # itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
@@ -282,15 +282,15 @@ if __name__ == '__main__':
     rand = random.Random()
 
     logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
-    def limited_send(self, msg, toUserName=None, mediaId=None):
+
+    def limited_send(msg, toUserName=None, mediaId=None):
         global lastSentMsgTimestamp
         while time.time() - lastSentMsgTimestamp < 3:
             sleep(rand.random() + 1)
         lastSentMsgTimestamp = time.time()
-        self.send(msg, toUserName, mediaId)
+        itchat.send(msg, toUserName, mediaId)
 
-    itchat.originInstance.limited_send = limited_send
-    itchat.send = itchat.originInstance.limited_send
+    itchat.limited_send = limited_send
     itchat.myNickName = ""
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
     app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
