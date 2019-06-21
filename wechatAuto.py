@@ -230,9 +230,9 @@ def lc():
 
     for contact in contactList:
         if contact["type"] == "friend":
-            itchat.get_head_img(userName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
+            itchat.get_head_img(userName=contact["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
         elif contact["type"] == "chatroom":
-            itchat.get_head_img(chatroomUserName=elem["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
+            itchat.get_head_img(chatroomUserName=contact["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
 
     logging.info("Head Images are all present, resizing the images.")
     for file in dirContent:
