@@ -72,7 +72,7 @@ def sendToWechat():
     userNameList = []
     for target in targetList:
         if " || " in target:
-            nickName, remarkName = target.split(" || ")
+            remarkName, nickName = target.split(" || ")
             remarkName = remarkName if remarkName != "" else None
             userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
         else:
@@ -134,7 +134,7 @@ def getPage(form=""):
         wechatInfo["wechatContactList"] = []
         for friend in itchat.get_friends():
             if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
-                wechatInfo["wechatContactList"].append(friend["NickName"] + " || " + friend["RemarkName"])
+                wechatInfo["wechatContactList"].append(friend["RemarkName"] + " || " + friend["NickName"])
         for chatroom in itchat.get_chatrooms():
             if "/" not in chatroom["NickName"]:
                 wechatInfo["wechatContactList"].append(chatroom["NickName"])
@@ -209,7 +209,7 @@ def lc():
             contactList.append({"type": "chatroom", "fName": fName, "UserName": chatroom["UserName"]})
     for friend in itchat.get_friends():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
-            fName = friend["NickName"] + " || " + friend["RemarkName"]
+            fName = friend["RemarkName"] + " || " + friend["NickName"]
             contactList.append({"type": "friend", "fName": fName, "UserName": friend["UserName"]})
     logging.info("There are a total of {} contacts to load.".format(len(contactList)))
     try:
