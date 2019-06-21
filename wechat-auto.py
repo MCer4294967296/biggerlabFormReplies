@@ -1,5 +1,5 @@
-import json, os, subprocess, time, random
-from flask import Flask, abort, request, render_template, jsonify
+import json, os, subprocess, time, random, signal, sys
+from flask import Flask, abort, request, render_template, jsonify, Response
 from flask_cors import CORS
 import pymongo, itchat
 import parseForms, templates, formNameTranslation, metaInitializer
@@ -8,15 +8,10 @@ import parseForms, templates, formNameTranslation, metaInitializer
 app = Flask(__name__)
 CORS(app)
 
+def handlerSIGINT(signal, frame):
+    itchat.logout()
 
-def getroom_message(n):
-    #获取群的username，对群成员进行分析需要用到
-    itchat.dump_login_status() # 显示所有的群聊信息，默认是返回保存到通讯录中的群聊
-    RoomList =  itchat.search_chatrooms(name=n)
-    if RoomList:
-        return RoomList[0]['UserName']
-    else:
-        print("%s group is not found!" % (name))
+#signal.signal(signal.SIGINT, handlerSIGINT)
 
 
 @app.route("/jinshujuIN", methods=["POST"])
@@ -243,14 +238,37 @@ def lc():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
             fName = friend["NickName"] + " || " + friend["RemarkName"]
             itchat.get_head_img(userName=friend["UserName"], picDir="static/wechatStuff/{}.jpg".format(fName))
-            subprocess.run(["convert", "static/wechatStuff/{}.jpg".format(fName), "-resize", "50x50", "static/wechatStuff/{}.jpg".format(fName)])
-    os.remove("QR.png")
-    
+
+    dirContent = os.listdir("static/wechatStuff")
+
+    def func(elem):
+        if elem.endswith(".jpg"):
+            subprocess.run(["convert", "static/wechatStuff/{}.jpg".format(f), "-resize", "50x50", "static/wechatStuff/{}.jpg".format(f)])
+
+    multiThreadMap(func, dirContent)
+
+
+def multiThreadMap(job, collection, threadCount = os.cpu_count):
+    tCount = 1
+    id = 0
+    while tCount < threadCount:
+        pid = os.fork()
+        tCount += 1
+        if pid == 0:
+            id = tCount - 1
+            break
+    start = int(len(collection) * id / totalThreads)
+    end = int(len(collection) * (id + 1) / totalThreads)
+    for i in range(start, end):
+        job(collection[i])
+    if id != 0:
+        sys.exit(0)
 
 def ec():
     for f in os.listdir("static/wechatStuff"):
         if f != "QR.png":
             os.remove("static/wechatStuff/{}".format(f))
+    os.remove("QR.png")
 
 
 @app.route("/login", methods=["GET"])
