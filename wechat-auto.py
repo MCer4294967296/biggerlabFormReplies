@@ -233,7 +233,6 @@ def lc():
         if "/" not in chatroom["NickName"]:
             fName = chatroom["NickName"]
             itchat.get_head_img(chatroomUserName=chatroom["UserName"], picDir="static/wechatStuff/{}.jpg".format(fName))
-            subprocess.run(["convert", "static/wechatStuff/{}.jpg".format(fName), "-resize", "50x50", "static/wechatStuff/{}.jpg".format(fName)])
     for friend in itchat.get_friends():
         if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
             fName = friend["NickName"] + " || " + friend["RemarkName"]
