@@ -1,5 +1,5 @@
 #!/bin/bash
-for file in $1
+for file in "$@"
 do
-echo $file
+convert $file -resize 50x50 $file
 done
