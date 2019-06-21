@@ -276,5 +276,6 @@ if __name__ == '__main__':
         self.send(msg, toUserName, mediaId)
 
     itchat.send = send
+    itchat.myNickName = ""
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
     app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
