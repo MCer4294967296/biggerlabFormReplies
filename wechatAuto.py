@@ -235,7 +235,7 @@ def lc():
             itchat.get_head_img(chatroomUserName=contact["UserName"], picDir="{}/{}.jpg".format(cacheDir, contact["fName"]))
 
     logging.info("Head Images are all present, resizing the images.")
-    subprocess.run(["bash", "resizing", "{}/*.jpg".format(cacheDir)])
+    subprocess.run(["bash", "resizing", "'{}/*.jpg'".format(cacheDir)])
 
     os.remove("static/wechatStuff/loggingIn")
     logging.info("Login complete.")
