@@ -1,4 +1,5 @@
-import os, sys, itchat
+import os, sys
+import itchat, pymongo
 
 def multiThreadMap(job, collection, threadCount = os.cpu_count()):
     tCount = 1
