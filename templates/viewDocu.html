@@ -140,6 +140,7 @@ function switchActive(elem) {
   }
 }
 
+
 //var server = "47.100.121.67:5050"
 var server = "localhost:5050"
 function sendToWechat() {
@@ -207,6 +208,13 @@ function saveToDB() {
 document.getElementById("saveButton").onclick = saveToDB;
 
 
+function makeToTop(listItem) {
+  var par = listItem.parentElement;
+  par.removeChild(listItem);
+  par.insertBefore(listItem, par.children[0]);
+}
+
+
 function getInfo(elem) {
   var id = elem.id.slice(8);
   var url = "http://" + server + "/getInfo/{{ formName }}/" + id;
@@ -228,6 +236,11 @@ function getInfo(elem) {
       document.getElementById("messageEdited").textContent = jsonData.messageEdited;
       document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
       document.getElementById("leftList"+id).classList.add("active");
+      for (item of wechatList) {
+        if (item.id.contains(jsonData.studentName)) {
+          makeToTop(item);
+        }
+      }
     }
   }
   xhr.open("GET", url, true);
@@ -268,18 +281,23 @@ function logout(e) {
   xhr.send();
 }
 
+var wechatList = Array();
+
 window.onload = function() {
-  elems = document.getElementsByClassName("list-group-item list-group-item-action");
-  for (elem of elems) {
+
+  for (elem of document.getElementsByClassName("list-group-item list-group-item-action")) {
     if (elem.id.startsWith("wechatList")) {
-      pic = null;
-      for (child of elem.children) {
-        if (child.tagName == "IMG") {
-          pic = child;
-        }
-      }
-      pic.src = "/static/wechatStuff/{{ wechatInfo.wechatNickName }}/" + elem.id.slice(10) + ".jpg"
+      wechatList.push(elem);
     }
+  }
+
+  for (item of wechatList) {
+    for (child of item.children) {
+      if (child.tagName == "IMG") {
+        pic = child;
+      }
+    }
+    pic.src = "/static/wechatStuff/{{ wechatInfo.wechatNickName }}/" + elem.id.slice(10) + ".jpg"
   }
 }
 </script>
