@@ -237,7 +237,7 @@ function getInfo(elem) {
       document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
       document.getElementById("leftList"+id).classList.add("active");
       for (item of wechatList) {
-        if (item.id.contains(jsonData.studentName)) {
+        if (item.id.includes(jsonData.studentName)) {
           makeToTop(item);
         }
       }
