@@ -135,6 +135,11 @@ def getPage(form=""):
         for friend in itchat.get_friends():
             if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
                 wechatInfo["wechatContactList"].append(friend["RemarkName"] + " || " + friend["NickName"])
+                '''
+                fName = friend["RemarkName"] + " || " + friend["NickName"]
+                with open("static/wechatStuff/{}/{}".format(itchat.myNickName, fName), 'rb') as f:
+                    wechatInfo["wechatContactList"].append({"name": fName, "img" = f.read()})
+                '''
         for chatroom in itchat.get_chatrooms():
             if "/" not in chatroom["NickName"]:
                 wechatInfo["wechatContactList"].append(chatroom["NickName"])
