@@ -1,21 +1,6 @@
 import os, sys
 import itchat, pymongo
 
-def multiThreadMap(job, collection, threadCount = os.cpu_count()):
-    tCount = 1
-    id = 0
-    while tCount < threadCount:
-        pid = os.fork()
-        tCount += 1
-        if pid == 0:
-            id = tCount - 1
-            break
-    start = int(len(collection) * id / threadCount)
-    end = int(len(collection) * (id + 1) / threadCount)
-    for i in range(start, end):
-        job(collection[i])
-    if id != 0:
-        sys.exit(0)
 
 def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
     '''returns a list of documents with the provided ID range and count,
