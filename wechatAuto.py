@@ -130,7 +130,7 @@ def getPage(form=""):
     wechatInfo["wechatLoggingIn"] = itchat.originInstance.isLogging
     wechatInfo["wechatLoggedIn"] = itchat.originInstance.alive
     wechatInfo["wechatNickName"] = itchat.myNickName
-    if wechatInfo["wechatLoggedIn"]:
+    if itchat.myNickName != "":
         wechatInfo["wechatContactList"] = []
         for friend in itchat.get_friends():
             if "/" not in friend["NickName"] and "/" not in friend["RemarkName"]:
@@ -143,9 +143,9 @@ def getPage(form=""):
         for chatroom in itchat.get_chatrooms():
             if "/" not in chatroom["NickName"]:
                 wechatInfo["wechatContactList"].append(chatroom["NickName"])
-    elif wechatInfo["wechatLoggingIn"]:
-        wechatInfo["loadedHeadPercentage"] = "{}/{}".format(len(os.listdir("static/wechatStuff/{}".format(itchat.myNickName)))-2,
-                                                            len(itchat.get_chatrooms()) + len(itchat.get_friends()))
+    #elif wechatInfo["wechatLoggingIn"]:
+    #wechatInfo["loadedHeadPercentage"] = "{}/{}".format(len(os.listdir("static/wechatStuff/{}".format(itchat.myNickName)))-2,
+                                                            #len(itchat.get_chatrooms()) + len(itchat.get_friends()))
 
     if len(leftList) == 0:
         return render_template("viewDocu.html", wechatInfo=wechatInfo, formName=form)

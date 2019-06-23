@@ -26,6 +26,7 @@ body {
       {% else %}
         {% if wechatInfo.wechatLoggingIn == True %}
         <p>You are logging in as: <img src="/static/wechatStuff/{{ wechatInfo.wechatNickName }}.png"></p>
+        <p><a href="/static/QRviewer.html" onclick="logout()">click this ONLY if the button above and try to re-login if the contact list is not showing up.</a></p>
         {% else %}
         <p>You are not logged in.</p>
         <button class="btn btn-primary" id="loginButton" onclick="login()">login</button>
@@ -113,10 +114,6 @@ body {
         </li>
         {% endfor %}
       </ul>
-      {% else %}
-        {% if wechatInfo.loadedHeadPercentage is defined %}
-        <div>Loaded contact: {{ wechatInfo.loadedHeadPercentage }}</div>
-        {% endif %}
       {% endif %}
     </div>
   </div>
