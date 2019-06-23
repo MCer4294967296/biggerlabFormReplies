@@ -246,7 +246,7 @@ def lc():
     logging.info("Login complete.")
 
 def ec():
-    
+    itchat.myNickName = ""
     try:
         os.remove("static/wechatStuff/loggingIn")
     except FileNotFoundError:
