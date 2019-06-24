@@ -26,6 +26,7 @@ body {
       {% else %}
         {% if wechatInfo.wechatLoggingIn == True %}
         <p>You are logging in as: <img src="/static/wechatStuff/{{ wechatInfo.wechatNickName }}.png"></p>
+        <p><a href="/static/QRviewer.html" onclick="logout()">click this ONLY if the button above and try to re-login if the contact list is not showing up.</a></p>
         {% else %}
         <p>You are not logged in.</p>
         <button class="btn btn-primary" id="loginButton" onclick="login()">login</button>
@@ -102,13 +103,17 @@ body {
       {% if wechatInfo.wechatContactList is defined %}
       <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;">
         {% for item in wechatInfo.wechatContactList %}
-        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)"><img src="/static/wechatStuff/{{ wechatInfo.wechatNickName }}/{{ item }}.jpg" style="height: 50px; width: 50px"> {{ item }}</li>
+        <!--
+        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)">
+          <img src="data:image/jpeg;charset=utf-8;base64,/static/wechatStuff/{{ wechatInfo.wechatNickName }}/{{ item }}.jpg" style="height: 50px; width: 50px"> {{ item }}
+        </li>
+        -->
+        <li class="list-group-item list-group-item-action" id="wechatList{{ item }}" onclick="switchActive(this)">
+          <img style="height: 50px; width: 50px">
+          <span>{{ item }}</span>
+        </li>
         {% endfor %}
       </ul>
-      {% else %}
-        {% if wechatInfo.loadedHeadPercentage is defined %}
-        <div>Loaded contact: {{ wechatInfo.loadedHeadPercentage }}</div>
-        {% endif %}
       {% endif %}
     </div>
   </div>
@@ -131,6 +136,7 @@ function switchActive(elem) {
     elem.classList.add("active");
   }
 }
+
 
 //var server = "47.100.121.67:5050"
 var server = "localhost:5050"
@@ -199,6 +205,13 @@ function saveToDB() {
 document.getElementById("saveButton").onclick = saveToDB;
 
 
+function makeToTop(listItem) {
+  var par = listItem.parentElement;
+  par.removeChild(listItem);
+  par.insertBefore(listItem, par.children[0]);
+}
+
+
 function getInfo(elem) {
   var id = elem.id.slice(8);
   var url = "http://" + server + "/getInfo/{{ formName }}/" + id;
@@ -220,6 +233,11 @@ function getInfo(elem) {
       document.getElementById("messageEdited").textContent = jsonData.messageEdited;
       document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
       document.getElementById("leftList"+id).classList.add("active");
+      for (item of wechatList) {
+        if (item.id.includes(jsonData.studentName)) {
+          makeToTop(item);
+        }
+      }
     }
   }
   xhr.open("GET", url, true);
@@ -258,6 +276,26 @@ function logout(e) {
   }
   xhr.open("GET", "http://" + server + "/logout", true);
   xhr.send();
+}
+
+var wechatList = Array();
+
+window.onload = function() {
+
+  for (elem of document.getElementsByClassName("list-group-item list-group-item-action")) {
+    if (elem.id.startsWith("wechatList")) {
+      wechatList.push(elem);
+    }
+  }
+
+  for (item of wechatList) {
+    for (child of item.children) {
+      if (child.tagName == "IMG") {
+        pic = child;
+      }
+    }
+    pic.src = "/static/wechatStuff/{{ wechatInfo.wechatNickName }}/" + item.id.slice(10) + ".jpg"
+  }
 }
 </script>
 </body>
