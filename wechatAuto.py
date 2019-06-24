@@ -1,4 +1,4 @@
-import json, os, subprocess, time, random, signal, sys, logging
+import json, os, subprocess, time, random, signal, sys, logging, base64
 from flask import Flask, abort, request, render_template, jsonify, Response
 from flask_cors import CORS
 import pymongo, itchat
@@ -195,6 +195,25 @@ def getInfo(form, id):
                     "teacherName": info["teacherName"],
                     "reasonFilling": info["reasonFilling"],
                     "messageEdited": mInfo["edited"]})
+
+
+@app.route("/getWechatHeadImg/<fName>", methods=["GET"])
+def getWechatHeadImg(fName):
+    cacheDir = "static/wechatStuff/{}".format(itchat.myNickName)
+    dirContent = os.listdir(cacheDir)
+    if fName in dirContent:
+        f = open("static/wechatStuff/{}/{}".format(itchat.myNickName, fName), 'rb')
+        content = f.read()
+        f.close()
+        return "data:image/jpeg;base64," + base64.b64encode(content).decode()
+    target=fName[:-4]
+    if " || " in target:
+            remarkName, nickName = target.split(" || ")
+            remarkName = remarkName if remarkName != "" else None
+            pic = itchat.get_head_img(userName=itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
+        else:
+            pic = itchat.get_head_img(chatroomUserName=itchat.search_chatrooms(name=target)[0]["UserName"])
+    return "data:image/jpeg;base64," + base64.b64encode(pic).decode()
 
 
 def genMessage(form, id):
