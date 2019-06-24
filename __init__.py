@@ -1,18 +1,33 @@
-from flask import Flask
+import logging
+from flask import Flask, render_template
 from flask_cors import CORS
+import pymongo
+import BiggerlabCourseFeedback
 
 def create_app():
-    app = Flask(__name__, )
+    global app, db
+
+    app = Flask(__name__)
     CORS(app)
-    db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
+    # initialization    
+    app.config.from_pyfile('config.py', silent=True)
+    # read config
+    app.register_blueprint(BiggerlabCourseFeedback.bp)
+    # register routes
+    db = pymongo.MongoClient(app.config[MongoDBServer])['jinshuju']
+    # prepare for the database
     return app
 
+
+@app.route("/", methods=["GET"])
+def home():
+    # need to traverse the db, return value includes 
+    pass
+
+
 if __name__ == '__main__':
-    # itchat.auto_login(hotReload=True, loginCallback=lambda : print("Login Successful."), enableCmdQR=2)
-    # login when starting the server instead of doing it when data arrives
-    db = pymongo.MongoClient("mongodb://localhost:27017/")['jinshuju']
-    # prepare for the database
-    rand = random.Random()
+
+    #rand = random.Random()
 
     logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
 

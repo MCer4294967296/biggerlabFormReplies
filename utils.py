@@ -1,5 +1,13 @@
-import os, sys
+import os, requests, sys
 import itchat, pymongo
+
+
+def shorten(URL):
+    if URL == "":
+        return ""
+
+    service = "https://tinyurl.com/api-create.php"
+    return requests.get(url=service, params={"url" : URL}).text
 
 
 def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
@@ -21,18 +29,24 @@ def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
         nextID = idEnd + 1
     elif idStart:
         match = list(docs.where("this['{key}'] >= {idStart}".format(idStart=idStart, key=key)).sort(key, pymongo.DESCENDING))
-        chosen = match[-10:]
+        chosen = match[-count:]
         prevID = idStart - 1
-        nextID = chosen[0][key] + 1 if len(match) > 10 else None
+        nextID = chosen[0][key] + 1 if len(match) > count else None
+        if count <= 0:
+            chosen = match
+            nextID = None
     elif idEnd:
         match = list(docs.where("this['{key}'] <= {idEnd}".format(idEnd=idEnd, key=key)).sort(key, pymongo.DESCENDING))
-        chosen = match[:10]
-        prevID = chosen[-1][key] - 1 if len(match) > 10 else None
+        chosen = match[:count]
+        prevID = chosen[-1][key] - 1 if len(match) > count else None
         nextID = idEnd + 1
+        if count <= 0:
+            chosen = match
+            prevID = None
     else:
         match = list(docs.sort(key, pymongo.DESCENDING))
-        chosen = match[:10]
-        prevID = chosen[-1][key] - 1 if len(match) > 10 else None
+        chosen = match[:count]
+        prevID = chosen[-1][key] - 1 if len(match) > count else None
         nextID = None
 
     return chosen, prevID, nextID
