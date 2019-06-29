@@ -2,11 +2,11 @@ import functools
 from flask import (
     Blueprint, flash, g, jsonify, redirect, render_template, request, session, url_for
 )
-from wechat_autoreply import db, form, utils
+from .. import form, main, utils
 
+db = main.db
 
 bp = Blueprint('BiggerlabCourseFeedback', __name__, url_prefix='/BiggerlabCourseFeedback')
-
 
 class BiggerlabCourseFeedback(form.ToWechatForm):
 
@@ -18,8 +18,8 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     @bp.route("/jinshujuIN", methods=["POST"])
     def jinshujuIN():
         if not request.is_json:
-        logging.warning("/jinshujuIN received non-json data.")
-        return "400 BAD REQUEST: Data is not a json, rejecting.", 400
+            logging.warning("/jinshujuIN received non-json data.")
+            return "400 BAD REQUEST: Data is not a json, rejecting.", 400
 
         jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))    
 

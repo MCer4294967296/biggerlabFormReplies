@@ -1,4 +1,4 @@
-from shortener import shorten
+from utils import shorten
 
 def parseBiggerlabCourseFeedback(blob):
 

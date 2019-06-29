@@ -1,0 +1,40 @@
+{% extends 'base.html'}
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="col-8">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Form name</th>
+              <!--
+              <th scope="col">Head Image</th>
+              <th scope="col">Nick Name</th>
+              <th scope="col">Actions</th>
+              -->
+            </tr>
+          </thead>
+          <tbody>
+            {% for form in forms %}
+            <tr>
+              <th scope="row"><a href="/{{ form }}">{{ form }}</a></th>
+              <!--
+              <td><img style="height: 50px; width: 50px" src="/static/{{ item.NickName }}.png"></td>
+              <td>{{ item.NickName }}</td>
+              <td><a href="#" onclick="logout(this)">logout</a></td>
+              -->
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col-4">
+        <ol>
+          {% for bot in bots %}
+          <li class="list-group-item"><img src="{{ bot.HeadSource }}"> <span>{{ bot.NickName }}</span></li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+{% endblock %}

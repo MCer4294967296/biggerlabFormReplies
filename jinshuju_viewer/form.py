@@ -1,7 +1,10 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from wechat_autoreply import app, db, utils
+from . import main
+
+db = main.db
+app = main.app
 
 class Form():
 
@@ -16,8 +19,8 @@ class Form():
         '''
         
         if not request.is_json:
-        logging.warning("/jinshujuIN received non-json data.")
-        return "400 BAD REQUEST: Data is not a json, rejecting.", 400
+            logging.warning("/jinshujuIN received non-json data.")
+            return "400 BAD REQUEST: Data is not a json, rejecting.", 400
 
         jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))    
 

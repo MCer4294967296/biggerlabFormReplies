@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Message Viewer</title>
+<link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css" type="text/css">
+<!--
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+-->
+<style>
+body {
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+</style>
+</head>
+<body>
+{% block body %}{% endblock %}
+
+<script src="/static/vendor/jquery/jquery.slim.min.js" crossorigin="anonymous"></script>
+<script src="/static/vendor/popper.min.js" crossorigin="anonymous"></script>
+<script src="/static/vendor/bootstrap/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+{% block script %}{% endblock %}
+</body>
+</html>
