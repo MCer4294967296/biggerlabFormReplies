@@ -14,10 +14,9 @@ app.config.from_pyfile('config.py', silent=True)
 db = pymongo.MongoClient(app.config["MONGODBSERVER"])['jinshuju']
 # prepare for the database
 
-from . import form
-
 from .Form import BiggerlabCourseFeedback
 app.register_blueprint(BiggerlabCourseFeedback.bp)
+from .Form import Unseen
 
 
 @app.route("/", methods=["GET"])

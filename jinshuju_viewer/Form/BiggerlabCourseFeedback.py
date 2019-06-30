@@ -4,15 +4,24 @@ from flask import (
 )
 from .. import form, main, utils
 
-db = main.db
 
 bp = Blueprint('BiggerlabCourseFeedback', __name__, url_prefix='/BiggerlabCourseFeedback')
 
 class BiggerlabCourseFeedback(form.ToWechatForm):
 
     form = "BiggerlabCourseFeedback"
-    col = db[form]
-    mCol = db["meta" + form]
+    col = main.db[form]
+    mCol = main.db["meta" + form]
+
+
+    @staticmethod
+    @bp.route("/", methods=["GET"])
+    def getPage():
+        bots = utils.getActiveBots(main.app.config["WECHATBOTSERVER"])
+        for bot in bots:
+            bot["HeadSource"] = "{}static/{}.png".format(main.app.config["WECHATBOTSERVER"], bot["NickName"])
+        return render_template("Form/BiggerlabCourseFeedback.html", bots=bots, WECHATBOTSERVER=main.app.config["WECHATBOTSERVER"])
+
 
     @staticmethod
     @bp.route("/jinshujuIN", methods=["POST"])
