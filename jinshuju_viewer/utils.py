@@ -68,7 +68,7 @@ def handlerSIGINT(signal, frame):
 
 def getActiveBots(server):
     try:
-        ret = json.loads(requests.get(server, params={"json" : True}).content)
+        ret = json.loads(requests.get(server, params={"json" : True}).content.decode("utf-8"))
     except requests.exceptions.ConnectionError:
         ret = []
     return ret
