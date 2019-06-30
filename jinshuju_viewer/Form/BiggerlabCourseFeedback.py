@@ -32,7 +32,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
                 return make_response(("id is not valid.", 400))
 
         docs = BiggerlabCourseFeedback.col.find()
-        chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd0)
+        chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd)
 
         leftList = []
         for i in range(len(chosen)):
