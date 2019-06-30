@@ -2,6 +2,7 @@ import functools, json, requests
 from flask import (
     Blueprint, flash, g, jsonify, make_response, redirect, render_template, request, session, url_for
 )
+import pymongo
 from .. import form, main, utils
 
 
@@ -31,7 +32,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
                 return make_response(("id is not valid.", 400))
 
         docs = BiggerlabCourseFeedback.col.find()
-        chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd)
+        chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd0)
 
         leftList = []
         for i in range(len(chosen)):
@@ -64,7 +65,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         info = BiggerlabCourseFeedback.parse(rawInfo) # parse the information out,
 
         try:
-            col.insert_one(info) # try inserting,
+            BiggerlabCourseFeedback.col.insert_one(info) # try inserting,
         except pymongo.errors.DuplicateKeyError: # if duplicate,
             return "400 you fked up: Duplicate Key", 400 # then err out;
             # we can also do a query instead of trying to insert, # TODO
