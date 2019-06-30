@@ -1,2 +1,2 @@
-MongoDBServer = "mongodb://localhost:27017/"
-WechatBotServer = "http://localhost:9314/"
+MONGODBSERVER = "mongodb://localhost:27017/"
+WECHATBOTSERVER = "http://localhost:5000/"

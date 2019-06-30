@@ -1,4 +1,4 @@
-import os, requests, sys
+import json, os, requests, sys
 import itchat, pymongo
 
 
@@ -63,3 +63,6 @@ def handlerSIGINT(signal, frame):
     except FileNotFoundError:
         pass
     sys.exit(0)
+
+def getActiveBots(server):
+    return json.loads(requests.get(server, params={"json" : True}).content)
