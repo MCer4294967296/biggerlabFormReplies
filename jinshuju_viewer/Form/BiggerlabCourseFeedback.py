@@ -1,6 +1,6 @@
-import functools
+import functools, json, requests
 from flask import (
-    Blueprint, flash, g, jsonify, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, jsonify, make_response, redirect, render_template, request, session, url_for
 )
 from .. import form, main, utils
 
@@ -20,7 +20,31 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         bots = utils.getActiveBots(main.app.config["WECHATBOTSERVER"])
         for bot in bots:
             bot["HeadSource"] = "{}static/{}.png".format(main.app.config["WECHATBOTSERVER"], bot["NickName"])
-        return render_template("Form/BiggerlabCourseFeedback.html", bots=bots, WECHATBOTSERVER=main.app.config["WECHATBOTSERVER"])
+        
+        idStart = request.args.get("idStart")
+        idEnd = request.args.get("idEnd")
+        if idStart or idEnd:
+            try:
+                idEnd = int(idEnd) if idEnd else None
+                idStart = int(idStart) if idStart else None
+            except:
+                return make_response(("id is not valid.", 400))
+
+        docs = BiggerlabCourseFeedback.col.find()
+        chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd)
+
+        leftList = []
+        for i in range(len(chosen)):
+            doc = chosen[i]
+            id = doc["_id"]
+            mInfo = BiggerlabCourseFeedback.mCol.find({"jsjid": id})[0]
+            item = {"id": id, "studentName": doc["studentName"] + (" (已发送)" if mInfo["sentToWechat"] else "")}
+            leftList.append(item)
+
+        prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
+        nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
+
+        return render_template("Form/BiggerlabCourseFeedback.html", prevLink=prevLink, nextLink=nextLink, leftList=leftList, bots=bots, WECHATBOTSERVER=main.app.config["WECHATBOTSERVER"])
 
 
     @staticmethod
@@ -28,7 +52,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     def jinshujuIN():
         if not request.is_json:
             logging.warning("/jinshujuIN received non-json data.")
-            return "400 BAD REQUEST: Data is not a json, rejecting.", 400
+            return make_response(("Data is not a json, rejecting.", 400))
 
         jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))    
 
@@ -59,14 +83,14 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     @staticmethod
     @bp.route("/getDoc", methods=["GET"])
     def getDoc():
-        id = request.args.get("id")
-
-        info = col.find({"jsjid": id})[0]
-        mInfo = mCol.find({"jsjid": id})[0]
+        id = int(request.args.get("id"))
+        #print(list(BiggerlabCourseFeedback.col.find()))
+        info = BiggerlabCourseFeedback.col.find({"_id": id})[0]
+        mInfo = BiggerlabCourseFeedback.mCol.find({"jsjid": id})[0]
         message = mInfo["message"]
         if message == "":
             message = BiggerlabCourseFeedback.genMessage(id)
-            mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
+            BiggerlabCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
         return jsonify({"id": id,
                         "message": message,
                         "studentName": info["studentName"],
@@ -84,7 +108,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
         info = {}
 
-        info["jsjid"] = rawInfo["serial_number"]
+        info["_id"] = rawInfo["serial_number"]
 
         info["reasonFilling"] = rawInfo["field_5"] # 填表原因
 
@@ -183,11 +207,12 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
 
     @staticmethod
-    def genMessage(info):
-        __class__
+    def genMessage(id):
+        
+        info = BiggerlabCourseFeedback.col.find({"_id": id})[0]
 
         if info["reasonFilling"] not in BiggerlabCourseFeedback.messageTemplates.keys():
-            return # it was "other"
+            return "" # it was "other"
 
         message = BiggerlabCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
         return message
@@ -196,4 +221,45 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     @staticmethod
     @bp.route("/sendToWechat", methods=["POST"])
     def sendToWechat():
-        pass
+        if not request.is_json:
+            return make_response(("Data is not a json, rejecting.", 400))
+        id = request.json.get("id", None)
+
+        bots = utils.getActiveBots(main.app.config["WECHATBOTSERVER"])
+        if not bots:
+            return make_response(("There are no bots alive.", 400))
+        
+        try:
+            targetList = request.json["targetList"]
+            message = request.json["message"]
+        except:
+            return make_response(("TargetList or Message is not specified.", 400))
+        
+        fail = False
+        for target in targetList:
+            if " || " in target:
+                remarkName, nickName = target.split(" || ")
+                #remarkName = remarkName if remarkName != "" else None
+                #userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
+            else:
+                nickName = target
+                remarkName = ""
+                #userNameList.append(itchat.search_chatrooms(name=target)[0]["UserName"])
+            resp = requests.post(main.app.config["WECHATBOTSERVER"] + "send", json={
+                    "message": message,
+                    "NickName": nickName,
+                    "hintRemarkName": remarkName
+            })
+            if resp.status_code != 200:
+                fail = True
+            else:
+                try:
+                    id = int(id)
+                    BiggerlabCourseFeedback.mCol.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
+                except:
+                    pass
+
+        if fail:
+            return make_response(("There were problems sending some of the messages.", 500))
+        else:
+            return make_response(("Message is sent.", 200))

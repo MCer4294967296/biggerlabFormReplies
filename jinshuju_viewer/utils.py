@@ -51,6 +51,7 @@ def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
 
     return chosen, prevID, nextID
 
+
 def handlerSIGINT(signal, frame):
     itchat.logout()
     try:
@@ -64,5 +65,10 @@ def handlerSIGINT(signal, frame):
         pass
     sys.exit(0)
 
+
 def getActiveBots(server):
-    return json.loads(requests.get(server, params={"json" : True}).content)
+    try:
+        ret = json.loads(requests.get(server, params={"json" : True}).content)
+    except requests.exceptions.ConnectionError:
+        ret = []
+    return ret

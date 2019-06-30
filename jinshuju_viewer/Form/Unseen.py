@@ -31,7 +31,7 @@ class Unseen(form.Form):
         rawInfo = jsonObj["entry"]
         rawInfo.update({"jsjid" : id})
 
-        col = db[form]
+        col = Unseen.db[form]
 
         try:
             col.insert_one(rawInfo) # try inserting,
@@ -41,7 +41,7 @@ class Unseen(form.Form):
 
         mInfo = Form.mParse(rawInfo)
 
-        mCol = db["meta" + form]
+        mCol = Unseen.db["meta" + form]
 
         try:
             mCol.insert_one(metaInfo) # try inserting,
@@ -70,9 +70,9 @@ class Unseen(form.Form):
                 #logging.warning("/getPage received an invalid id range.")
                 return make_response(("id is not valid.", 400))
         #logging.info("Page requested.")
-        col = db[form]
+        col = Unseen.db[form]
         docs = col.find()
-        chosen, prevID, nextID = getIDList(docs, idStart=idStart, idEnd=idEnd)
+        chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd, key="jsjid")
         return render_template()
 
     
@@ -83,7 +83,7 @@ class Unseen(form.Form):
         information according to the id.
         '''
         id = int(request.args.get("id"))
-        col = db[form]
+        col = Unseen.db[form]
         info = col.find({"jsjid": id})[0]
         #logging.info("Information requested.")
         return jsonify(info)
