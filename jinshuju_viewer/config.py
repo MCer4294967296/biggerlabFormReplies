@@ -1,2 +1,2 @@
 MONGODBSERVER = "mongodb://localhost:27017/"
-WECHATBOTSERVER = "http://localhost:5005/"
+WECHATBOTSERVER = "http://47.100.121.67:5005/"
