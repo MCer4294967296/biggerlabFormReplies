@@ -73,11 +73,10 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         mInfo = BiggerlabCourseFeedback.mParse(rawInfo)
 
         try:
-            mCol.insert_one(metaInfo) # try inserting,
+            BiggerlabCourseFeedback.mCol.insert_one(metaInfo) # try inserting,
         except pymongo.errors.DuplicateKeyError: # if duplicate,
             return "400 you fked up: Duplicate Key", 400 # then err out;
 
-        logging.info("Entry added to databases.")
         return "200 OK", 200 # otherwise we are good
 
 
