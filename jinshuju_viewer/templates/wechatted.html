@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block body %}
+{% block leftPart %} {% endblock %}
+<div class="col-4" style="max-height: inherit">
+  <div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="wechatBotDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span><img src="{{ bots[0].HeadSource }}"></span>
+      <span>{{ bots[0].NickName }}</span>
+    </button>
+    <div class="dropdown-menu" aria-labelledby="wechatBotDropdownMenuButton">
+      {% for bot in bots %}
+      <a class="dropdown-item" href="#" onclick="changeBot(this)">
+        <span><img src="{{ bot.HeadSource }}"></span> <span>{{ bot.NickName }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;" id="wechatContactList">
+  </ul>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+function switchActive(e) {
+  elem = e.target;
+  if (elem.classList.contains("active")) {
+    elem.classList.remove("active");
+  } else {
+    elem.classList.add("active");
+  }
+}
+
+function wechatContactClick(e) {
+  switchActive(e);
+  var elem = e.target;
+  var img;
+  for (child of elem.children) {
+    if (child.tagName == "IMG") {
+      img = child;
+      if (!img.src) {
+        var comb = elem.id.slice(10);
+        if (comb.includes(" || ")) {
+          var NickName = comb.split(" || ")[1];
+          var RemarkName = comb.split(" || ")[0];
+          img.src = "{{ WECHATBOTSERVER }}getHeadImg?NickName=" + NickName + "&hintRemarkName=" + RemarkName;
+        } else {
+          img.src = "{{ WECHATBOTSERVER }}getHeadImg?NickName=" + comb;
+        }
+      }
+      break;
+    }
+  }
+}
+
+function changeBot(elem) {
+  var NickName = elem.children[1].innerHTML; // get the nickname via the second span element.
+  var instanceID = 0;
+  var items = document.getElementsByClassName("dropdown-item")
+  for (i = 0; i < items.length; i++) {
+    if (NickName == items[i]) {
+      instanceID = i;
+      break;
+    }
+  } // get the index as instanceID.
+
+  var xhr = new XMLHttpRequest;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      var btn = document.getElementById("wechatBotDropdownMenuButton");
+      while (btn.firstChild) {
+        btn.removeChild(btn.firstChild);
+      } // remove the stuff on the button,
+      for (child of elem.children) {
+        btn.appendChild(child.cloneNode(true));
+      } // and add the new stuff onto the button.
+
+      var jsonObj = JSON.parse(xhr.responseText);
+      var wcl = document.getElementById("wechatContactList");
+      while (wcl.firstChild) {
+        wcl.removeChild(wcl.firstChild);
+      } // remove all elements on the list.
+
+      for (contact of jsonObj) { // for every contact,
+        var newNode = document.createElement("li"); // we create a node
+        newNode.className = "list-group-item list-group-item-action"; // that has these classname.
+        var textNode
+        if (contact.Type == "Chatroom") {
+          newNode.id = "wechatList" + contact.NickName;
+          textNode = document.createTextNode(contact.NickName); // and its inner text.
+        } else {
+          newNode.id = "wechatList" + contact.RemarkName + " || " + contact.NickName;
+          textNode = document.createTextNode(contact.RemarkName + " || " + contact.NickName); // and its inner text.
+        } // we give the node the unique id,
+        newNode.onclick = wechatContactClick; // set its onclick event,
+        var imgNode = document.createElement("img"); // setup its child nodes
+        imgNode.style = "height: 50px; width: 50px;";
+        //imgNode.src = "{{ WECHATBOTSERVER }}getHeadImg?NickName=" + contact.NickName + "&instanceID=" + instanceID + "&hintRemarkName=" + contact.RemarkName; 
+        newNode.appendChild(imgNode);
+        newNode.appendChild(textNode);
+        wcl.appendChild(newNode); // then append it onto the list.
+      }
+    }
+  }
+
+  xhr.open("POST", "{{ WECHATBOTSERVER }}getContactList");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.send(JSON.stringify({
+    "instanceID": instanceID
+  }))
+}
+
+window.onload = function () {
+  elem = document.getElementsByClassName("dropdown-menu")[0].children[0];
+  changeBot(elem);
+};
+</script>
+{% endblock %}
