@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 {% block wechatList %}
 <div class="col-md-4" style="max-height: inherit">
+
   <div class="dropdown">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="wechatBotDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      {% if bots[0] is defined %}
       <span><img src="{{ bots[0].HeadSource }}"></span>
       <span>{{ bots[0].NickName }}</span>
+      {% endif %}
     </button>
     <div class="dropdown-menu" aria-labelledby="wechatBotDropdownMenuButton">
       {% for bot in bots %}
@@ -162,7 +165,7 @@ function sendToWechat() {
 }
 
 window.onload = function () {
-  elem = document.getElementsByClassName("dropdown-menu")[0].children[0];
+  elem = document.getElementsByClassName("dropdown-menu")[0].firstChild;
   changeBot(elem);
 };
 </script>

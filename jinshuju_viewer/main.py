@@ -10,10 +10,10 @@ app = Flask(__name__)
 CORS(app)
 # read config
 app.config.from_pyfile('config.py', silent=True)
-# register routes
-db = pymongo.MongoClient(app.config["MONGODBSERVER"])['jinshuju']
 # prepare for the database
+db = pymongo.MongoClient(app.config["MONGODBSERVER"])['jinshuju']
 
+# register routes
 from .Form import BiggerlabCourseFeedback
 app.register_blueprint(BiggerlabCourseFeedback.bp)
 from .Form import Unseen
