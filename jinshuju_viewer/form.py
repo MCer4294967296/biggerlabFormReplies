@@ -50,7 +50,6 @@ class ParsedForm(Form):
         raise NotImplementedError
     
 
-
 class ToWechatForm(ParsedForm):
 
     @staticmethod
