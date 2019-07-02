@@ -24,7 +24,7 @@ def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
 
     chosen = []
     if idStart and idEnd:
-        chosen = list(docs.where("this['{key}'] >= {idStart} && this['{key}'] <= {idEnd}").format(idStart=idStart, idEnd=idEnd, key=key).sort(key, pymongo.DESCENDING))
+        chosen = list(docs.where("this['{key}'] >= {idStart} && this['{key}'] <= {idEnd}".format(idStart=idStart, idEnd=idEnd, key=key).sort(key, pymongo.DESCENDING)))
         prevID = idStart - 1
         nextID = idEnd + 1
     elif idStart:

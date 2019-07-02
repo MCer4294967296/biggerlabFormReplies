@@ -13,7 +13,6 @@ The problems with the existing solution is that the parents have to
 
 The desired solution is to push messages directly to a parents’ or a group chat.
 
-
 ### External libraries used
 * [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/), to build our ugly frontend page;
 * [Flask](http://flask.pocoo.org/docs/1.0/api/) with python3, as our backend server;

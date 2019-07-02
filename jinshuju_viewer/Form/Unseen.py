@@ -14,18 +14,19 @@ class Unseen(form.Form):
     
     @staticmethod
     @app.route("/jinshujuIN", methods=["POST"])
-    def jinshujuIN():        
+    def jinshujuIN():
+        '''The handler of data from jinshuju.
+        :returns: A helpful message and a status code.
+        '''
         if not request.is_json:
-            #logging.warning("/jinshujuIN received non-json data.")
             return make_response(("Data is not a json, rejecting.", 400))
 
-        jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))    
+        jsonObj = json.loads(json.dumps(request.json, ensure_ascii=False))
 
-        # formNameTranslation.translation[jsonObj["form"]] # get the unique form name
-        form = jsonObj["form"]
+        form = jsonObj["form"] # get the form id
         
-        if len(Unseen.unseenForms.find_one({"form": form})) == 0:
-            Form.unseenForms.insert_one({"form": form, "formName": jsonObj["form_name"]})
+        if len(Unseen.unseenForms.find_one({"form": form})) == 0: # if we haven't seen this form before,
+            Unseen.unseenForms.insert_one({"form": form, "formName": jsonObj["form_name"]}) # we 
 
         id = int(jsonObj["entry"]["serial_number"])
 
@@ -55,11 +56,8 @@ class Unseen(form.Form):
     @staticmethod
     @app.route("/<form>", methods=["GET"])
     def getPage(form):
-        '''This method renders The main page where you
-        will view the information about the whole
-        collection, as well as a list of entries.
-        This one is specifically for those forms that are either
-        generic or not defined within our program.
+        '''The renderer of the viewer page of general forms
+        :params form: the form name.
         '''
         idStart = request.args.get("idStart")
         idEnd = request.args.get("idEnd")
@@ -74,18 +72,20 @@ class Unseen(form.Form):
         col = Unseen.db[form]
         docs = col.find()
         chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd, key="jsjid")
-        return render_template()
+        return render_template("Form/Unseen.html")
 
     
     @staticmethod
     @app.route("/<form>/getDoc", methods=["GET"])
     def getDoc(form):
-        '''This method queries the database and returns the related
-        information according to the id.
+        '''This method queries the database and finds one document that matches the id.
+        :params form: the form name;
+        :returns: the information as a json.
         '''
-        id = int(request.args.get("id"))
+        id = int(request.args["id"])
+        key = request.args.get("key", "jsjid")
         col = Unseen.db[form]
-        info = col.find({"jsjid": id})[0]
+        info = col.find({key: id})[0]
         #logging.info("Information requested.")
         return jsonify(info)
 
@@ -94,6 +94,8 @@ class Unseen(form.Form):
     def mParse(rawInfo):
         '''This is a method that makes the initial metaInfo to
         insert into the meta database.
+        :params rawInfo: a dict that should include a key "serial_number";
+        :returns: the initial meta infomation as a dict.
         '''
         mInfo = {}
 
@@ -101,4 +103,3 @@ class Unseen(form.Form):
         mInfo["viewed"] = False
 
         return mInfo
-
