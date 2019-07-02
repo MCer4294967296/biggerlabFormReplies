@@ -1,5 +1,5 @@
 import json, logging, requests
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 from flask_cors import CORS
 import pymongo
 from .utils import *
@@ -12,7 +12,6 @@ CORS(app)
 app.config.from_pyfile('config.py', silent=True)
 # prepare for the database
 db = pymongo.MongoClient(app.config["MONGODBSERVER"])['jinshuju']
-
 # register routes
 from .Form import BiggerlabCourseFeedback
 app.register_blueprint(BiggerlabCourseFeedback.bp)
@@ -21,9 +20,17 @@ from .Form import Unseen
 
 @app.route("/", methods=["GET"])
 def home():
+    '''The index page renderer.
+    '''
     # need to traverse the db, return value includes 
     cols = db.list_collection_names()
     bots = getActiveBots(app.config["WECHATBOTSERVER"])
     for bot in bots:
         bot["HeadSource"] = "{}static/{}.png".format(app.config["WECHATBOTSERVER"], bot["NickName"])
+    g.WECHATSERVER=app.config["WECHATBOTSERVER"]
     return render_template("index.html", forms=cols, bots=bots)
+
+
+@app.route("/importance", methods=["GET"])
+def importance():
+    pass
