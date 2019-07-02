@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'form.html' %}
 {% block wechatList %}
-<div class="col-md-4" style="max-height: inherit">
+<div class="col" style="max-height: inherit">
 
   <div class="dropdown">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="wechatBotDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -17,35 +17,26 @@
       {% endfor %}
     </div>
   </div>
-
+  
   <ul class="list-group" style="max-height: inherit; overflow-y: auto; text-align: left;" id="wechatContactList">
   </ul>
 </div>
 {% endblock %}
 {% block script %}
+{{ super() }}
 <script>
-function switchActive(e) {
-  elem = e.target;
-  if (elem.classList.contains("active")) {
-    elem.classList.remove("active");
-  } else {
-    elem.classList.add("active");
-  }
-}
 
-function wechatContactClick(e) {
-  switchActive(e);
-  var elem = e.target;
-  //alert(elem.id);
-  var img = elem.firstChild;
+function wechatContactClick(elem) {
+  elem.classList.toggle("active");
+  var img = elem.firstElementChild;
   if (!img.src) {
     var comb = elem.id.slice(10);
     if (comb.includes(" || ")) {
       var NickName = comb.split(" || ")[1];
       var RemarkName = comb.split(" || ")[0];
-      img.src = "{{ WECHATBOTSERVER }}getHeadImg?NickName=" + NickName + "&hintRemarkName=" + RemarkName;
+      img.src = "{{ g.WECHATBOTSERVER }}getHeadImg?NickName=" + NickName + "&hintRemarkName=" + RemarkName;
     } else {
-      img.src = "{{ WECHATBOTSERVER }}getHeadImg?NickName=" + comb;
+      img.src = "{{ g.WECHATBOTSERVER }}getHeadImg?NickName=" + comb;
     }
   }
 }
@@ -64,7 +55,7 @@ function changeBot(elem) {
   } // get the index as instanceID.
 
   var xhr = new XMLHttpRequest;
-  xhr.onreadystatechange = function() {
+  xhr.onreadystatechange = function () {
     if (xhr.readyState == 4 && xhr.status == 200) {
       var btn = document.getElementById("wechatBotDropdownMenuButton");
       while (btn.firstChild) {
@@ -81,48 +72,32 @@ function changeBot(elem) {
       } // remove all elements on the list.
       wechatContactList = Array();
       for (contact of jsonObj) { // for every contact,
-        var newNode = document.createElement("li"); // we create a node
-        newNode.className = "list-group-item list-group-item-action"; // that has these classname.
-        newNode.onclick = wechatContactClick; // set its onclick event,
-        /*
-          var imageNode = document.createElement("div");
-          imageNode.className = "col-md";
-          */
-            var img = document.createElement("img");
-            img.style = "height: 50px; width: 50px;";
-            newNode.appendChild(img);
-          /*
-          imageNode.appendChild(img);
-          var remarkNameNode = document.createElement("div");
-          remarkNameNode.className = "col-md";
-          var nickNameNode = document.createElement("div");
-          nickNameNode.className = "col-md";
-          nickNameNode.innerText = contact.NickName;
-        */
-        var textNode;
+        var name;
         if (contact.Type == "Chatroom") {
-          newNode.id = "wechatList" + contact.NickName;
-          //textNode.appendChild(document.createTextNode(contact.NickName));
-          textNode = document.createTextNode(contact.NickName); // and its inner text.
+          name = contact.NickName;
         } else {
-          newNode.id = "wechatList" + contact.RemarkName + " || " + contact.NickName;
-          //remarkNameNode.innerText = contact.RemarkName;
+          name = contact.RemarkName + " || " + contact.NickName;
+        }
+        var newNode = document.createElement("li"); // we create a node
+        newNode.classList.add("list-group-item", "list-group-item-action"); // that has these classname.
+        newNode.id = "wechatList" + name;
+        newNode.onclick = (e) => {wechatContactClick(e.target)}; // set its onclick event,
 
-          textNode = document.createTextNode(contact.RemarkName + " || " + contact.NickName); // and its inner text.
-        } // we give the node the unique id,
-        //imgNode.src = "{{ WECHATBOTSERVER }}getHeadImg?NickName=" + contact.NickName + "&instanceID=" + instanceID + "&hintRemarkName=" + contact.RemarkName; 
-        //newNode.appendChild(imageNode);
-        //newNode.appendChild(remarkNameNode);
-        //newNode.appendChild(nickNameNode);
+        var img = document.createElement("img");
+        img.style = "height: 50px; width: 50px;";
+        newNode.appendChild(img);
+
+        var textNode = document.createTextNode(name);
         newNode.appendChild(textNode);
+        //imgNode.src = "{{ g.WECHATBOTSERVER }}getHeadImg?NickName=" + contact.NickName + "&instanceID=" + instanceID + "&hintRemarkName=" + contact.RemarkName; 
         wechatContactList.push(newNode);
         wcl.appendChild(newNode); // then append it onto the list.
       }
     }
   }
 
-  xhr.open("POST", "{{ WECHATBOTSERVER }}getContactList");
-  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.open("POST", "{{ g.WECHATBOTSERVER }}getContactList", true);
+  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr.send(JSON.stringify({
     "instanceID": instanceID
   }))
@@ -132,12 +107,11 @@ function sendToWechat() {
   var id = document.getElementById("msgID").textContent;
 
   var targetList = [];
-  [].forEach.call(document.getElementsByClassName("list-group-item-action"), 
-    function (elem) {
-      if (elem.id.startsWith("wechatList") && elem.classList.contains("active")) {
-        targetList.push(elem.id.slice(10));
-      }
-    })
+  for (wechatContact of wechatContactList) {
+    if (wechatContact.classList.contains("active")) {
+      targetlist.push(wechatContact.id.slice(10));
+    }
+  }
   message = document.getElementById("message2Send").value;
   var confirmText = "You are about to send the message to these people/chatrooms:";
   for (item of targetList) {
@@ -146,12 +120,16 @@ function sendToWechat() {
   if (confirm(confirmText)) {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 200) {
+      if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
           //var jsonData = JSON.parse(xhr.responseText);
           if (!document.getElementById(id).textContent.endsWith(" (已发送)")) {
-              document.getElementById(id).textContent += " (已发送)"
+              document.getElementById(id).textContent += " (已发送)";
           }
           alert("Message is sent.");
+        } else if (xhr.status == 500) {
+          alert("Some messages are not sent, please check manually.");
+        }
       }
     }
     xhr.open("POST", wechatServer, true);
