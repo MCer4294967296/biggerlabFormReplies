@@ -164,8 +164,12 @@ function sendToWechat() {
   }
 }
 
+oldOnloads.push(window.onload);
 window.onload = function () {
-  elem = document.getElementsByClassName("dropdown-menu")[0].firstChild;
+  try {
+    oldOnloads.pop()()
+  } catch (e) {}
+  elem = document.getElementsByClassName("dropdown-menu")[0].firstElementChild;
   changeBot(elem);
 };
 </script>

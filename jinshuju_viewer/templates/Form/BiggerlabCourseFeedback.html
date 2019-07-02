@@ -90,6 +90,7 @@
 {% block script %}
 {{ super() }}
 <script>
+
 function makeToTop(listItem) {
   var par = listItem.parentElement;
   par.removeChild(listItem);
@@ -178,9 +179,11 @@ function filter() {
   xhr.send(JSON.stringify(request));
 }
 
-var oldOnload = window.onload;
+oldOnloads.push(window.onload);
 window.onload = function () {
-  oldOnload();
+  try {
+    oldOnloads.pop()()
+  } catch(e) {}
   filter();
 };
 </script>
