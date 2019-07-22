@@ -1,4 +1,7 @@
 class Form():
+
+    key="jsjid"
+    mKey = "jsjid"
     
     @staticmethod
     def jinshujuIN():

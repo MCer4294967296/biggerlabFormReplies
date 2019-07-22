@@ -3,6 +3,7 @@ import itchat, pymongo
 
 
 def shorten(URL):
+    '''calls the tinyurl API.'''
     if URL == "":
         return ""
 
@@ -63,3 +64,13 @@ def getActiveBots(server):
     except requests.exceptions.ConnectionError:
         ret = []
     return ret
+
+
+def deDownload(link):
+    """Function that removes the "&download" argument in a jinshuju url,
+    so that the link is to preview instead of downloading.
+    """
+    try:
+        return link[:-9] if link.endswith("&download") else link
+    except:
+        return link

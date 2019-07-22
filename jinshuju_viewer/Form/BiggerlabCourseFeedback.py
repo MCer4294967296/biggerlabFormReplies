@@ -12,6 +12,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     form = "BiggerlabCourseFeedback"
     col = main.db[form]
     mCol = main.db["meta" + form]
+    key = "_id"
 
 
     @staticmethod
