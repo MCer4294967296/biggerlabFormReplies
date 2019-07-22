@@ -173,82 +173,94 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         chosen = chosen[offset:count+offset]
         return jsonify(chosen)
 
-
+    
     @staticmethod
     def parse(rawInfo):
-
-        def deDownload(linkArr):
-            return "" if len(linkArr) == 0 else (linkArr[0][:-9] if linkArr[0].endswith("&download") else linkArr[0])
-        # 有些link最后会带一个"&download" 这会导致它默认下载而不是预览，所以我们扔掉它。
 
         info = {}
 
         info["jsjid"] = rawInfo["serial_number"]
 
-        #info["reasonFilling"] = rawInfo["field_5"] # 填表原因
-
         info["teacherName"] = rawInfo["field_23"] # 导师姓名
         info["teacherRole"] = rawInfo["field_1"] # 导师角色
         info["teacherPhone"] = rawInfo["field_20"] # 导师手机
-        #info["teacherComment"] = rawInfo["field_19"] # 导师评价
 
         info["studentName"] = rawInfo["field_63"] # 学生姓名
-
         info["projectType"] = rawInfo["field_6"] # 项目类型
         
-        info["submissionCategory"] = rawInfo["field_31"] # 提交类型
+        info["submissionCategory"] = rawInfo["field_31"] # 提交类型 # array
 
+        # 提交类型 为 导师技术Demo提交
         info["teacherTechDemoLink"] = rawInfo["field_64"] # 导师技术Demo提交链接
-        info["teacherDemoVideo"] = rawInfo["field_37"] # 导师Demo展示视频
+        info["teacherDemoVideo"] = rawInfo["field_37"] # 导师Demo展示视频 # array
 
+        # 提交类型 为 课时提交Course Time Submission
         info["projectStage"] = rawInfo["field_39"] # 项目阶段Stage Of the Project
         info["projectStageCompletion"] = rawInfo["field_28"] # 当前阶段完成进度（%）Stage Completion
         info["dateEventHappened"] = rawInfo["field_3"] # 发生日期 Date the event happened
         info["sessionStartTime"] = rawInfo["field_4"] # 辅导开始时间 Session started at
         info["sessionEndTime"] = rawInfo["field_24"] # 辅导结束时间 Session ended at
         info["sessionSummary"] = rawInfo["field_8"] # 本次辅导小结 Summary of the session
-        info["sessionRelatedFiles"] = rawInfo["field_10"] # 上传辅导相关文件 Please upload related files here
+        info["sessionRelatedFiles"] = rawInfo["field_10"] # 上传辅导相关文件 Please upload related files here # array
+        info["documentationLink"] = rawInfo["field_43"] # 学生博客链接 Link to student's documentation blog
         info["ifStudentHasHomework"] = rawInfo["field_46"] # 有无学生课后作业？
         info["ifteacherFinishedTeaching"] = rawInfo["field_47"] # 该导师授课内容是否完结？
 
-        #info["courseName"] = rawInfo["field_8"] # 课程名
-        #info["courseStartDate"] = rawInfo["field_9"] # 课程开始日期
-        #info["courseEndDate"] = rawInfo["field_12"] # 课程结束日期
-        #info["courseContent"] = rawInfo["field_13"] # 已上课程内容
-        #info["courseCapturelink"] = rawInfo["field_32"] # 课程视频链接
-        #info["projectScreenshot"] = utils.shorten(deDownload(rawInfo["field_18"])) # 项目作品截图
+        # 提交类型 为 头脑风暴文档验收Brainstorm Document Submission
+        # info["projectStage"] = rawInfo["field_39"] # 项目阶段Stage Of the Project
+        # info["projectStageCompletion"] = rawInfo["field_28"] # 当前阶段完成进度（%）Stage Completion
+        # info["dateEventHappened"] = rawInfo["field_3"] # 发生日期 Date the event happened
+        info["brainstormDocument"] = rawInfo["field_38"] # 头脑风暴文档 Brainstorm Document # array
+        info["endOfMentorshipSummary"] = rawInfo["field_12"] # 导师阶段性结课内容总结 End-of-mentorship summary
+        info["endOfMentorshipFeedback"] = rawInfo["field_11"] # 导师阶段性结课学生评价 End-of-mentorship feedback of the student
+        # info["ifteacherFinishedTeaching"] = rawInfo["field_47"] # 该导师授课内容是否完结？
 
-        #info["rateAttendance"] = rawInfo["field_14"] # 学生课堂参与度
-        #info["rateUnderstanding"] = rawInfo["field_15"] # 知识点理解情况
-        #info["rateAssignmentCompletion"] = rawInfo["field_16"] # 课堂任务完成情况
-        #info["rateGeneral"] = rawInfo["field_17"] # 综合评价
+        # 提交类型 为 项目文档验收Project Document Submissions
+        # info["projectStage"] = rawInfo["field_39"] # 项目阶段Stage Of the Project
+        # info["projectStageCompletion"] = rawInfo["field_28"] # 当前阶段完成进度（%）Stage Completion
+        # info["dateEventHappened"] = rawInfo["field_3"] # 发生日期 Date the event happened
+        info["projectDocument"] = rawInfo["field_34"] # 项目文档 Project Document # array
+        # info["endOfMentorshipSummary"] = rawInfo["field_12"] # 导师阶段性结课内容总结 End-of-mentorship summary
+        # info["endOfMentorshipFeedback"] = rawInfo["field_11"] # 导师阶段性结课学生评价 End-of-mentorship feedback of the student
+        info["studentDocumentationBlogLink"] = rawInfo["field_43"] # 学生博客链接 Link to student's documentation blog
+        # info["ifStudentHasHomework"] = rawInfo["field_46"] # 有无学生课后作业？
+        # info["ifteacherFinishedTeaching"] = rawInfo["field_47"] # 该导师授课内容是否完结？
 
-        #info["reasonChanging"] = rawInfo["field_20"] # 交接原因
-        #info["nextTeacher"] = rawInfo["field_21"] # 接手导师姓名
-        #info["classType"] = rawInfo["field_23"] # 上课形式
-        #info["classStartTime"] = rawInfo["field_10"] # 上课时间
-        #info["classEndTime"] = rawInfo["field_11"] # 下课时间
-        #info["hoursTaught"] = rawInfo["field_25"] # 已上课时数
+        # 提交类型 为 学生技术实现阶段性汇报Technical Realization Stage Report
+        # info["projectStage"] = rawInfo["field_39"] # 项目阶段Stage Of the Project
+        # info["projectStageCompletion"] = rawInfo["field_28"] # 当前阶段完成进度（%）Stage Completion
+        # info["dateEventHappened"] = rawInfo["field_3"] # 发生日期 Date the event happened
+        info["completedFunctionsDescription"] = rawInfo["field_40"] # 完成功能描述Description of Functions Completed
+        info["githubRepoLink"] = rawInfo["field_53"] # 项目目录链接 Link to Github Repo
+        # info["teacherDemoVideo"] = rawInfo["field_37"] # 导师Demo展示视频
+        # info["studentDocumentationBlogLink"] = rawInfo["field_43"] # 学生博客链接 Link to student's documentation blog
+        # info["ifStudentHasHomework"] = rawInfo["field_46"] # 有无学生课后作业？
 
-        #info["awardReceived"] = rawInfo["field_33"] # 学生是否获得相应荣誉
-        #info["awardType"] = rawInfo["field_37"] # 荣誉类型
-        #info["projectDescription"] = rawInfo["field_42"] # 学生项目描述/所学内容
-        #info["teacherNotes"] = rawInfo["field_46"] # 导师对该学生的评语
+        # 提交类型 为 项目发布验收(项目完结)Project Publication(End of Project)
+        # info["projectStage"] = rawInfo["field_39"] # 项目阶段Stage Of the Project
+        # info["projectStageCompletion"] = rawInfo["field_28"] # 当前阶段完成进度（%）Stage Completion
+        # info["dateEventHappened"] = rawInfo["field_3"] # 发生日期 Date the event happened
+        # info["endOfMentorshipSummary"] = rawInfo["field_12"] # 导师阶段性结课内容总结 End-of-mentorship summary
+        # info["endOfMentorshipFeedback"] = rawInfo["field_11"] # 导师阶段性结课学生评价 End-of-mentorship feedback of the student
+        # info["teacherDemoVideo"] = rawInfo["field_37"] # 导师Demo展示视频
+        info["publishedPageLink"] = rawInfo["field_36"] # 发布链接Link to Published Page
+        # info["studentDocumentationBlogLink"] = rawInfo["field_43"] # 学生博客链接 Link to student's documentation blog
+        # info["ifStudentHasHomework"] = rawInfo["field_46"] # 有无学生课后作业？
+        # info["ifteacherFinishedTeaching"] = rawInfo["field_47"] # 该导师授课内容是否完结？
 
-        #info["awardEvidence"] = utils.shorten(deDownload(rawInfo["field_40"])) # 竞赛获奖证明截图
-        #info["competitionName"] = rawInfo["field_34"] # 比赛名称
-        #info["prizeReceived"] = rawInfo["field_35"] # 获得的奖项
+        # 提交类型 为 学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)
+        info["problemsEncountered"] = rawInfo["field_13"] # 本次学生辅导项目当前情况以及出现的问题 Current project status and problems encountered
 
-        #info["projectPublishEvidence"] = utils.shorten(deDownload(rawInfo["field_47"])) # 项目发布证明截图
-        #info["copyrightEvidence"] = utils.shorten(deDownload(rawInfo["field_48"])) # 著作权证明截图
-        #info["projectLink"] = rawInfo["field_43"] # 项目链接
-        #info["sourceCode"] = utils.shorten(deDownload(rawInfo["field_36"])) # 源代码文件
+        # 有无作业 为 有
+        info["homeworkName"] = rawInfo["field_66"] # 学生作业名称
+        info["homeworkList"] = rawInfo["field_9"] # 学生课后作业 Student's to-do list after the session:
+        info["homeworkETF"] = rawInfo["field_26"] # 作业预计完成时间Estimate Time to finish to-do tasks:
+        info["homeworkDDL"] = rawInfo["field_67"] # 作业截止日期
+        info["homeworkDDLOther"] = rawInfo["field_68"] # 作业截止日期(其他)
 
-        #info["admissionEvidence"] = utils.shorten(deDownload(rawInfo["field_49"])) # 名校录取证明截图
-        #info["schoolName"] = rawInfo["field_44"] # 学校名称
-        #info["profession"] = rawInfo["field_45"] # 专业名称
-
-        #info["awardOthers"] = utils.shorten(deDownload(rawInfo["field_50"])) # 其他荣誉证明截图
+        # 授课完结 为 否
+        info["nextSessionDate"] = rawInfo["field_32"] # 下次课程日期Date for the next session
+        info["nextSessionTime"] = rawInfo["field_35"] # 下次课程时间Schedule Time for the next session
         return info
 
     
@@ -269,6 +281,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
 
     @staticmethod
     def messageTemplatesTmp(**info):
+        raise NotImplementedError
         reasonFilling = info["reasonFilling"]
         if reasonFilling == "阶段性+续费课程反馈，给家长":
             template = \
