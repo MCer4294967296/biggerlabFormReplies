@@ -13,7 +13,7 @@ The problems with the existing solution is that the parents have to
 
 The desired solution is to push messages directly to a parents’ or a group chat.
 
-### External libraries used
+### External Libraries Used
 * [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/), to build our ugly frontend page;
 * [Flask](http://flask.pocoo.org/docs/1.0/api/) with python3, as our backend server;
 * MongoDB with [pymongo](http://api.mongodb.com/python/current/api/pymongo/index.html), as our database;
@@ -21,7 +21,7 @@ The desired solution is to push messages directly to a parents’ or a group cha
 * A separate proxy wechat bot server;
 
 
-### How to deploy
+### How to Deploy
 1. Download the source directory, open it in terminal, and do  
     `make`  
    Alternatively, if you do not have make installed, you can do  
@@ -37,7 +37,7 @@ The desired solution is to push messages directly to a parents’ or a group cha
    This will start a server listening on *host* port *port*.
 
 
-### Data flow
+### Data Flow
 #### Influx
 By specifying a webhook for every form we want to view on jinshuju, jinshuju will send an HTTP POST when a new record is filed. The flask route for this should be `*/jinshujuIN`.  
 The server, on receiving a new record, will save the record to the database as specified in `jinshuju_viewer/config.py`, with appropriate meta information saved as well.
@@ -47,7 +47,7 @@ Users can visit the site with a web browser and view any forms that has ever had
 On user request, the server will send an HTTP request to the wechat bot server, providing the nickname and remark name of the target contact, and the wechat bot server will do its job.
 
 
-### Project structure
+### Project Structure
 `./run.py`  
 The script that can start the server. The proper way though, is still via `flask run`.
 
@@ -92,7 +92,7 @@ The directory where various defined form backends live. Every one of these files
 The reason why that `form.py` is not in this directory is that I spent so long trying to figure out how to import it from other scripts and still I failed so I gave up.
 
 
-### Specifications for existing flask routes:
+### Specifications for Existing Flask Routes:
 `/jinshujuIN`   
 ```
 Defined in: ./Form/Unseen.py
@@ -216,3 +216,28 @@ Returns:
 ```
 This method does the send to wechat work. It parses out each target using the separator that's added on the frontend. If `id` is provided, modify the `sentToWechat` key of the corresponding meta document as well.  
 *TODO: do not use the separator at all.* 
+
+
+### Specifications for Existing Mongo Collections:
+#### _All information about main keys is talking apart from the default `_id` of Mongodb._
+`BiggerlabCourseFeedback`  
+The collection storing information of the form __Biggerlab 课程反馈表__ (form id: 34dBQf).  
+Main key: None. `_id` is the same as `serial_number` when jinshuju pushed.  
+*TODO: change this to `jsjid` and leave `_id` as default.*
+Captured information: all.
+
+`metaBiggerlabCourseFeedback`  
+The collection storing meta information of the form __Biggerlab 课程反馈表__ (form id: 34dBQf).  
+Main key: `jsjid`, the same as `serial_number`  
+Captured information:
+* the generated message
+* whether the message related to the entry is sent to wechat
+* whether the message is ever edited after it's generated (not used)
+* whether the message is viewed (not used)
+* when the data is pushed from jinshuju  
+  *TODO: change this to rawInfo["created_at"].*
+
+
+### Known Issues:
+* when creating a list from a pyMongo.cursor object, it sometimes errors. This is currently worked around by manually
+  iterating through the cursor and append to the list - an imaginable drop in efficiency.
