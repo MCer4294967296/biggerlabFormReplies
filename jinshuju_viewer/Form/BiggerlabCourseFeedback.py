@@ -12,7 +12,6 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     form = "BiggerlabCourseFeedback"
     col = main.db[form]
     mCol = main.db["meta" + form]
-    key = "_id"
 
 
     @staticmethod
@@ -41,7 +40,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         leftList = [] # initialize the message list on the left.
         for i in range(len(chosen)): # for each chosen document,
             doc = chosen[i]
-            id = doc["_id"]
+            id = doc["jsjid"]
             mInfo = BiggerlabCourseFeedback.mCol.find({"jsjid": id})[0]
             item = {"id": id, "studentName": doc["studentName"] + (" (已发送)" if mInfo["sentToWechat"] else "")}
             # construct the individual item.
@@ -95,7 +94,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
     def getDoc():
         id = int(request.args.get("id"))
         #print(list(BiggerlabCourseFeedback.col.find()))
-        info = BiggerlabCourseFeedback.col.find({"_id": id})[0]
+        info = BiggerlabCourseFeedback.col.find({"jsjid": id})[0]
         mInfo = BiggerlabCourseFeedback.mCol.find({"jsjid": id})[0]
         message = mInfo["message"]
         if message == "":
@@ -128,10 +127,10 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
         queryString = "true"
         if idStart:
-            queryString += "&& this['_id'] >= {idStart}".format(idStart=idStart)
+            queryString += "&& this['jsjid'] >= {idStart}".format(idStart=idStart)
             # docs = docs.where("this['_id'] >= {idStart}".format(idStart=idStart))
         if idEnd:
-            queryString += "&& this['_id'] <= {idEnd}".format(idEnd=idEnd)
+            queryString += "&& this['jsjid'] <= {idEnd}".format(idEnd=idEnd)
             # docs = docs.where("this['_id'] <= {idEnd}".format(idEnd=idEnd))
         docs = BiggerlabCourseFeedback.col.find().where(queryString)
         chosen = []
@@ -164,7 +163,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         
         mChosenID = [mDoc["jsjid"] for mDoc in mChosen]
         for doc in list(chosen):
-            if doc["_id"] not in mChosenID:
+            if doc["jsjid"] not in mChosenID:
                 chosen.remove(doc)
 
         chosen = chosen[offset:count+offset]
@@ -180,7 +179,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
         info = {}
 
-        info["_id"] = rawInfo["serial_number"]
+        info["jsjid"] = rawInfo["serial_number"]
 
         info["reasonFilling"] = rawInfo["field_5"] # 填表原因
 
@@ -313,7 +312,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
     @staticmethod
     def genMessage(id):
-        info = BiggerlabCourseFeedback.col.find({"_id": id})[0]
+        info = BiggerlabCourseFeedback.col.find({"jsjid": id})[0]
 
         #message = BiggerlabCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
         message = BiggerlabCourseFeedback.messageTemplatesTmp(**info)
