@@ -11,7 +11,7 @@ def shorten(URL):
     return requests.get(url=service, params={"url" : URL}).text
 
 
-def getIDList(docs, count=10, idStart=None, idEnd=None, key="_id"):
+def getIDList(docs, count=10, idStart=None, idEnd=None, key="jsjid"):
     '''returns a list of documents with the provided ID range and count,
     as well as the previous and next possible ID that's outside of the returned
     range. If there are no more, None is returned. '''
