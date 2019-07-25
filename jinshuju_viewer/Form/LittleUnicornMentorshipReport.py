@@ -73,18 +73,18 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
 
         rawInfo = jsonObj["entry"]
 
-        info = BiggerlabCourseFeedback.parse(rawInfo) # parse the information out,
+        info = LittleUnicornMentorshipReport.parse(rawInfo) # parse the information out,
 
         try:
-            BiggerlabCourseFeedback.col.insert_one(info) # try inserting,
+            LittleUnicornMentorshipReport.col.insert_one(info) # try inserting,
         except pymongo.errors.DuplicateKeyError: # if duplicate,
             return "400 you fked up: Duplicate Key", 400 # then err out;
             # we can also do a query instead of trying to insert, # TODO
 
-        mInfo = BiggerlabCourseFeedback.mParse(rawInfo)
+        mInfo = LittleUnicornMentorshipReport.mParse(rawInfo)
 
         try:
-            BiggerlabCourseFeedback.mCol.insert_one(mInfo) # try inserting,
+            LittleUnicornMentorshipReport.mCol.insert_one(mInfo) # try inserting,
         except pymongo.errors.DuplicateKeyError: # if duplicate,
             return "400 you fked up: Duplicate Key", 400 # then err out;
 
