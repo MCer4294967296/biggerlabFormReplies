@@ -58,7 +58,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
     @staticmethod
     @bp.route("/jinshujuIN", methods=["POST"])
     def jinshujuIN():
-        raise NotImplementedError
+        
         '''the jinshuju data handler.
         :returns: A helpful message and a status code.
         '''
