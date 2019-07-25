@@ -6,15 +6,15 @@
       <div class="col">
         <div>
         <input type="checkbox" class="form-check-input" id="checkbox1" onchange="filter()">
-        <label class="form-check-label" for="exampleCheck1">月度课程反馈</label>
+        <label class="form-check-label" for="checkbox1">月度课程反馈</label>
         </div>
         <div>
         <input type="checkbox" class="form-check-input" id="checkbox2" onchange="filter()">
-        <label class="form-check-label" for="exampleCheck1">阶段性课程反馈</label>
+        <label class="form-check-label" for="checkbox2">阶段性课程反馈</label>
         </div>
         <div>
         <input type="checkbox" class="form-check-input" id="checkbox3" onchange="filter()">
-        <label class="form-check-label" for="exampleCheck1">试听课反馈</label>
+        <label class="form-check-label" for="checkbox3">试听课反馈</label>
         </div>
       </div>
     </div>
@@ -31,7 +31,7 @@
         </ul>
 
         <!--
-        {% if leftList is defined %}
+        {# if leftList is defined %}
           {% for item in leftList %}
           <li class="list-group-item list-group-item-action" id="leftList{{ item.id }}" onclick="getInfo(this)">{{ item.studentName }}</li>
           {% endfor %}
@@ -43,7 +43,7 @@
         {% endif %}
         {% if nextLink is not none %}
         <a href="{{ nextLink }}">Next 10</a>
-        {% endif %}
+        {% endif #}
         -->
       </div>
     </div>
@@ -161,17 +161,16 @@ function filter() {
         leftListParent.removeChild(leftListParent.firstElementChild);
       }
       data = JSON.parse(xhr.responseText);
-      data = data.sort((a, b) => {return b["_id"] - a["_id"]});
+      data = data.sort((a, b) => {return b["jsjid"] - a["jsjid"]});
       for (index in data) {
         datum = data[index];
         var messageListItem = document.createElement("li");
         messageListItem.classList.add("list-group-item", "list-group-item-action");
-        messageListItem.id = "leftList" + datum["_id"];
+        messageListItem.id = "leftList" + datum["jsjid"];
         messageListItem.innerText = datum["studentName"];
         messageListItem.onclick = (e) => {getInfo(e.target);}
         leftListParent.appendChild(messageListItem);
       }
-      
     }
   }
   xhr.open("POST", "/BiggerlabCourseFeedback/getDocs", true);
