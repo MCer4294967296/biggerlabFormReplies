@@ -167,9 +167,11 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         
         mChosenID = [mDoc["jsjid"] for mDoc in mChosen]
         for doc in list(chosen):
-            del chosen["_id"]
             if doc["_id"] not in mChosenID:
                 chosen.remove(doc)
+
+        for doc in chosen:
+            del doc["_id"]
 
         chosen = chosen[offset:count+offset]
         return jsonify(chosen)
