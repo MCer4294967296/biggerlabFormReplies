@@ -167,6 +167,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         
         mChosenID = [mDoc["jsjid"] for mDoc in mChosen]
         for doc in list(chosen):
+            del chosen["_id"]
             if doc["_id"] not in mChosenID:
                 chosen.remove(doc)
 
@@ -282,65 +283,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
     @staticmethod
     def messageTemplatesTmp(**info):
         raise NotImplementedError
-        reasonFilling = info["reasonFilling"]
-        if reasonFilling == "阶段性+续费课程反馈，给家长":
-            template = \
-"""{studentName}家长您好，导师{teacherName}对您的孩子于{courseStartDate}开始的{courseName}作出了反馈。
-课堂参与度：{rateAttendance}
-知识点理解情况：{rateUnderstanding}
-课堂任务完成情况：{rateAssignmentCompletion}
-综合：{rateGeneral}
-
-您可以点击{projectScreenshot}来查看您的孩子的项目进展。
-这是您的孩子最近正在学的课程内容：{courseContent}
-这是导师对您的孩子作出的评价：{teacherComment}"""
-        elif reasonFilling == "月度课程反馈，给家长":
-            template = \
-"""{studentName}家长您好，导师{teacherName}对您的孩子于{courseStartDate}开始的{courseName}作出了月度课程反馈。
-课堂参与度：{rateAttendance}
-知识点理解情况：{rateUnderstanding}
-课堂任务完成情况：{rateAssignmentCompletion}
-综合：{rateGeneral}
-
-您可以点击{projectScreenshot}来查看您的孩子的项目进展。
-这是您的孩子最近正在学的课程内容：{courseContent}
-这是导师对您的孩子作出的评价：{teacherComment}"""
-        elif reasonFilling == "试听课反馈，由课程顾问复述给家长":
-            template = \
-"""{studentName}家长您好，导师{teacherName}对您的孩子于{courseStartDate}试听的{courseName}作出了反馈。
-课堂参与度：{rateAttendance}
-知识点理解情况：{rateUnderstanding}
-课堂任务完成情况：{rateAssignmentCompletion}
-综合：{rateGeneral}
-
-这是您的孩子所学的课程内容：{courseContent}
-您可以点击{projectScreenshot}来查看您孩子的作品。
-这是导师对您的孩子作出的评价：{teacherComment}"""
-        elif reasonFilling == "学生获奖/录取/荣誉反馈":
-            awardType = info["awardType"]
-            if awardType == "竞赛获奖":
-                template = \
-"""{studentName}家长您好，您的孩子在{competitionName}中获得了{prizeReceived}的成绩！这是获奖证明{awardEvidence}
-这是您孩子所做的项目：{projectDescription}
-这是{teacherName}导师对您孩子的评语：{teacherNotes}"""
-            elif awardType == "项目发布":
-                template = \
-"""{studentName}家长您好，您的孩子发布了自己的项目{projectLink}！这是项目发布证明{projectPublishEvidence}
-这是您孩子所做的项目：{projectDescription}
-这是{teacherName}导师对您孩子的评语：{teacherNotes}"""
-            elif awardType == "名校录取":
-                template = \
-"""{studentName}家长您好，您的孩子被{schoolName}的{profession}录取了！这是录取通知书{admissionEvidence}
-这是{teacherName}导师对您孩子的评语：{teacherNotes}"""
-            elif awardType == "著作权":
-                template = \
-"""{studentName}家长您好，您的孩子申请著作权成功了！这是登记证书{copyrightEvidence}
-这是您孩子项目的截图：{projectScreenshot}
-这是{teacherName}导师对您孩子的评语：{teacherNotes}"""
-            else:
-                return ""
-        else:
-            return ""
+        
 
         return template.format(**info)
 
