@@ -15,6 +15,8 @@ db = pymongo.MongoClient(app.config["MONGODBSERVER"])['jinshuju']
 # register routes
 from .Form import BiggerlabCourseFeedback
 app.register_blueprint(BiggerlabCourseFeedback.bp)
+from .Form import LittleUnicornMentorshipReport
+app.register_blueprint(LittleUnicornMentorshipReport.bp)
 from .Form import Unseen
 
 
@@ -31,6 +33,7 @@ def home():
     return render_template("index.html", forms=cols, bots=bots)
 
 
-@app.route("/importance", methods=["GET"])
-def importance():
+@app.route("/important", methods=["GET"])
+def important():
+    return render_template("important.html")
     pass
