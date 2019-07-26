@@ -94,14 +94,14 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
     @bp.route("/getDoc", methods=["GET"])
     def getDoc():
         id = int(request.args.get("id"))
-        #print(list(LittleUnicornMentorshipReportCourseFeedback.col.find()))
+        #print(list(LittleUnicornMentorshipReport.col.find()))
         info = LittleUnicornMentorshipReport.col.find({"jsjid": id})[0]
         mInfo = LittleUnicornMentorshipReport.mCol.find({"jsjid": id})[0]
         message = mInfo["message"]
         if message == "":
             message = LittleUnicornMentorshipReport.genMessage(id)
-            LittleUnicornMentorshipReportCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
-        LittleUnicornMentorshipReportCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"viewed": True}})
+            LittleUnicornMentorshipReport.mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
+        LittleUnicornMentorshipReport.mCol.update_one({"jsjid": id}, {"$set": {"viewed": True}})
         return jsonify({"id": id,
                         "message": message,
                         "studentName": info["studentName"],
@@ -131,7 +131,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             queryString += "&& this['jsjid'] >= {idStart}".format(idStart=idStart)
         if idEnd:
             queryString += "&& this['jsjid'] <= {idEnd}".format(idEnd=idEnd)
-        docs = LittleUnicornMentorshipReportCourseFeedback.col.find().where(queryString)
+        docs = LittleUnicornMentorshipReport.col.find().where(queryString)
         chosen = []
         while True:
             try:
@@ -146,7 +146,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             mQueryString += "&& this['timeFilled'] <= {timeFilledEnd}".format(timeFilledEnd=timeFilledEnd)
             # docs = docs.where("this['timeFilled'] <= {timeFilledEnd}".format(timeFilledEnd=timeFilledEnd))
         #print(mQueryString)
-        mDocs = LittleUnicornMentorshipReportCourseFeedback.mCol.find().where(mQueryString)
+        mDocs = LittleUnicornMentorshipReport.mCol.find().where(mQueryString)
         mChosen = []
         while True:
             try:
@@ -288,10 +288,10 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
 
     @staticmethod
     def genMessage(id):
-        info = LittleUnicornMentorshipReportCourseFeedback.col.find({"jsjid": id})[0]
+        info = LittleUnicornMentorshipReport.col.find({"jsjid": id})[0]
 
-        #message = LittleUnicornMentorshipReportCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
-        message = LittleUnicornMentorshipReportCourseFeedback.messageTemplatesTmp(**info)
+        #message = LittleUnicornMentorshipReport.messageTemplates[info["reasonFilling"]].format(**info)
+        message = LittleUnicornMentorshipReport.messageTemplatesTmp(**info)
         return message
 
 
@@ -333,7 +333,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             else:
                 try:
                     id = int(id)
-                    LittleUnicornMentorshipReportCourseFeedback.mCol.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
+                    LittleUnicornMentorshipReport.mCol.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
                 except:
                     pass
 
