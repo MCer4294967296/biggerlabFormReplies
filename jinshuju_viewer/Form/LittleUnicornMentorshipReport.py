@@ -17,7 +17,6 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
     @staticmethod
     @bp.route("/", methods=["GET"])
     def getPage():
-        raise NotImplementedError
         '''The renderer of the viewer page. 
         :returns: the rendered page or 400.
         '''
@@ -35,23 +34,23 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
                 return make_response(("id is not valid.", 400))
         # parse out the id range limiters.
 
-        docs = BiggerlabCourseFeedback.col.find() # query the database,
+        docs = LittleUnicornMentorshipReport.col.find() # query the database,
         chosen, prevID, nextID = utils.getIDList(docs, idStart=idStart, idEnd=idEnd) # and choose documents as wanted.
 
         leftList = [] # initialize the message list on the left.
         for i in range(len(chosen)): # for each chosen document,
             doc = chosen[i]
             id = doc["_id"]
-            mInfo = BiggerlabCourseFeedback.mCol.find({"jsjid": id})[0]
+            mInfo = LittleUnicornMentorshipReport.mCol.find({"jsjid": id})[0]
             item = {"id": id, "studentName": doc["studentName"] + (" (已发送)" if mInfo["sentToWechat"] else "")}
             # construct the individual item.
             leftList.append(item)
 
-        prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
-        nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
+        #prevLink = "{base_url}?idEnd={prevID}".format(base_url=request.base_url, prevID=prevID) if prevID is not None else None
+        #nextLink = "{base_url}?idStart={nextID}".format(base_url=request.base_url, nextID=nextID) if nextID is not None else None
         # calculate the previous and next link's id range limiter.
         g.WECHATBOTSERVER = main.app.config["WECHATBOTSERVER"]
-        return render_template("Form/BiggerlabCourseFeedback.html", prevLink=prevLink, nextLink=nextLink, leftList=leftList, bots=bots, WECHATBOTSERVER=main.app.config["WECHATBOTSERVER"])
+        return render_template("Form/LittleUnicornMentorshipReport.html", bots=bots, WECHATBOTSERVER=main.app.config["WECHATBOTSERVER"])
         #return render_template("wechatted.html", prevLink=prevLink, nextLink=nextLink, leftList=leftList, bots=bots, WECHATBOTSERVER=main.app.config["WECHATBOTSERVER"])
 
 
@@ -94,28 +93,26 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
     @staticmethod
     @bp.route("/getDoc", methods=["GET"])
     def getDoc():
-        raise NotImplementedError
         id = int(request.args.get("id"))
-        #print(list(BiggerlabCourseFeedback.col.find()))
-        info = BiggerlabCourseFeedback.col.find({"_id": id})[0]
-        mInfo = BiggerlabCourseFeedback.mCol.find({"jsjid": id})[0]
+        #print(list(LittleUnicornMentorshipReportCourseFeedback.col.find()))
+        info = LittleUnicornMentorshipReport.col.find({"jsjid": id})[0]
+        mInfo = LittleUnicornMentorshipReport.mCol.find({"jsjid": id})[0]
         message = mInfo["message"]
         if message == "":
-            message = BiggerlabCourseFeedback.genMessage(id)
-            BiggerlabCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
-        BiggerlabCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"viewed": True}})
+            message = LittleUnicornMentorshipReport.genMessage(id)
+            LittleUnicornMentorshipReportCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"message": message}})
+        LittleUnicornMentorshipReportCourseFeedback.mCol.update_one({"jsjid": id}, {"$set": {"viewed": True}})
         return jsonify({"id": id,
                         "message": message,
                         "studentName": info["studentName"],
                         "teacherName": info["teacherName"],
-                        "reasonFilling": info["reasonFilling"],
+                        "submissionCategory": info["submissionCategory"],
                         "messageEdited": mInfo["edited"]})
 
 
     @staticmethod
     @bp.route("/getDocs", methods=["POST"])
     def getDocs():
-        raise NotImplementedError
         if request.is_json:
             data = request.json
         else:
@@ -125,18 +122,16 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         idEnd = data.get("idEnd", None)
         timeFilledStart = data.get("timeFilledStart", None)
         timeFilledEnd = data.get("timeFilledEnd", None)
-        reasonFillingList = data.get("reasonFillingList", None)
+        submissionCategoryList = data.get("submissionCategoryList", None)
         count = int(data.get("count", 100))
         offset = int(data.get("offset", 0))
 
         queryString = "true"
         if idStart:
-            queryString += "&& this['_id'] >= {idStart}".format(idStart=idStart)
-            # docs = docs.where("this['_id'] >= {idStart}".format(idStart=idStart))
+            queryString += "&& this['jsjid'] >= {idStart}".format(idStart=idStart)
         if idEnd:
-            queryString += "&& this['_id'] <= {idEnd}".format(idEnd=idEnd)
-            # docs = docs.where("this['_id'] <= {idEnd}".format(idEnd=idEnd))
-        docs = BiggerlabCourseFeedback.col.find().where(queryString)
+            queryString += "&& this['jsjid'] <= {idEnd}".format(idEnd=idEnd)
+        docs = LittleUnicornMentorshipReportCourseFeedback.col.find().where(queryString)
         chosen = []
         while True:
             try:
@@ -150,8 +145,8 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         if timeFilledEnd:
             mQueryString += "&& this['timeFilled'] <= {timeFilledEnd}".format(timeFilledEnd=timeFilledEnd)
             # docs = docs.where("this['timeFilled'] <= {timeFilledEnd}".format(timeFilledEnd=timeFilledEnd))
-        print(mQueryString)
-        mDocs = BiggerlabCourseFeedback.mCol.find().where(mQueryString)
+        #print(mQueryString)
+        mDocs = LittleUnicornMentorshipReportCourseFeedback.mCol.find().where(mQueryString)
         mChosen = []
         while True:
             try:
@@ -293,10 +288,10 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
 
     @staticmethod
     def genMessage(id):
-        info = BiggerlabCourseFeedback.col.find({"_id": id})[0]
+        info = LittleUnicornMentorshipReportCourseFeedback.col.find({"_id": id})[0]
 
-        #message = BiggerlabCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
-        message = BiggerlabCourseFeedback.messageTemplatesTmp(**info)
+        #message = LittleUnicornMentorshipReportCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
+        message = LittleUnicornMentorshipReportCourseFeedback.messageTemplatesTmp(**info)
         return message
 
 
@@ -338,7 +333,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             else:
                 try:
                     id = int(id)
-                    BiggerlabCourseFeedback.mCol.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
+                    LittleUnicornMentorshipReportCourseFeedback.mCol.update_one({'jsjid': id}, {'$set': {'sentToWechat': True}}) # update the database
                 except:
                     pass
 

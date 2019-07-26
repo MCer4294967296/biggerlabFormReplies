@@ -219,7 +219,7 @@ This method does the send to wechat work. It parses out each target using the se
 
 
 ### Specifications for Existing Mongo Collections:
-#### _All information about main keys is talking apart from the default `_id` of Mongodb._
+#### _All information about main keys is talking apart from the default `_id` key of Mongodb._
 `BiggerlabCourseFeedback`  
 The collection storing information of the form __Biggerlab 课程反馈表__ (form id: 34dBQf).  
 Main key: None. `_id` is the same as `serial_number` when jinshuju pushed.  
@@ -239,5 +239,18 @@ Captured information:
 
 
 ### Known Issues:
-* when creating a list from a pyMongo.cursor object, it sometimes errors. This is currently worked around by manually
+* When creating a list from a pyMongo.cursor object, it sometimes errors. This is currently worked around by manually
   iterating through the cursor and append to the list - an imaginable drop in efficiency.
+* Now the main keys are default to `jsjid`, which leave the `_id` field default, which is
+  not serializable by json and need to exclude that field whenever a whole database document
+  is sent. Thus the database needs more designing.
+
+### Future Seeable Improvements:
+* Somehow use json to specify parser for forms, so as to be able to hot reload the server.
+* Store information about forms into the database. For example, the main key.
+* Use single-instance mode and not purely static stuff. I don't know how flask routes will
+  work with that. Doing that has the advantage of not specifying the classname when we 
+  want to refer to static stuff like `col` and `mCol`.
+* I'm thinking about use purely query-like arguments as routes - `/getPage?form=hopuFU`
+  or something similar in JSON. Since it looks like there aren't much difference between
+  forms apart from the parser and meta parser. This will have the advantage of less repeated codes.
