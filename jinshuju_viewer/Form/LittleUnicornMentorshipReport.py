@@ -40,7 +40,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         leftList = [] # initialize the message list on the left.
         for i in range(len(chosen)): # for each chosen document,
             doc = chosen[i]
-            id = doc["_id"]
+            id = doc["jsjid"]
             mInfo = LittleUnicornMentorshipReport.mCol.find({"jsjid": id})[0]
             item = {"id": id, "studentName": doc["studentName"] + (" (已发送)" if mInfo["sentToWechat"] else "")}
             # construct the individual item.
@@ -288,7 +288,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
 
     @staticmethod
     def genMessage(id):
-        info = LittleUnicornMentorshipReportCourseFeedback.col.find({"_id": id})[0]
+        info = LittleUnicornMentorshipReportCourseFeedback.col.find({"jsjid": id})[0]
 
         #message = LittleUnicornMentorshipReportCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
         message = LittleUnicornMentorshipReportCourseFeedback.messageTemplatesTmp(**info)
