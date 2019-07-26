@@ -154,15 +154,15 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             except StopIteration:
                 break
         #chosen = list(docs.where(queryString))
-        
+        '''
         if reasonFillingList:
             for doc in list(chosen):
                 if doc["reasonFilling"] not in reasonFillingList:
                     chosen.remove(doc)
-        
+        '''
         mChosenID = [mDoc["jsjid"] for mDoc in mChosen]
         for doc in list(chosen):
-            if doc["_id"] not in mChosenID:
+            if doc["jsjid"] not in mChosenID:
                 chosen.remove(doc)
 
         for doc in chosen:
