@@ -2,24 +2,39 @@
 {% block body %}
 <div class="row" style="max-height:600px">
   <div class="col-3" style="max-height: inherit">
-    <!--
     <div class="row">
       <div class="col">
         <div>
         <input type="checkbox" class="form-check-input" id="checkbox1" onchange="filter()">
-        <label class="form-check-label" for="checkbox1">月度课程反馈</label>
+        <label class="form-check-label" for="checkbox1">导师技术Demo提交</label>
         </div>
         <div>
         <input type="checkbox" class="form-check-input" id="checkbox2" onchange="filter()">
-        <label class="form-check-label" for="checkbox2">阶段性课程反馈</label>
+        <label class="form-check-label" for="checkbox2">课时提交Course Time Submission</label>
         </div>
         <div>
         <input type="checkbox" class="form-check-input" id="checkbox3" onchange="filter()">
-        <label class="form-check-label" for="checkbox3">试听课反馈</label>
+        <label class="form-check-label" for="checkbox3">头脑风暴文档验收Brainstorm Document Submission</label>
         </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox4" onchange="filter()">
+        <label class="form-check-label" for="checkbox4">项目文档验收Project Document Submission</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox5" onchange="filter()">
+        <label class="form-check-label" for="checkbox5">学生技术实现阶段性汇报Technical Realization Stage Report</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox6" onchange="filter()">
+        <label class="form-check-label" for="checkbox6">项目发布验收(项目完结)Project Publication(End of Project)</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox7" onchange="filter()">
+        <label class="form-check-label" for="checkbox7">学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)</label>
+        </div>
+        
       </div>
     </div>
-    -->
     <div class="row">
       <div class="col">
         {% block filtering %}
@@ -128,19 +143,31 @@ function filter() {
   if (timeFilledEnd != null) {
     request["timeFilledEnd"] = timeFilledEnd.getTime()/1000;
   }
-  /*
-  reasonFilling = new Array();
+  
+  submissionCategory = new Array();
   if (document.getElementById("checkbox1").checked) {
-    reasonFilling.push("月度课程反馈，给家长")
+    submissionCategory.push("导师技术Demo提交");
   }
   if (document.getElementById("checkbox2").checked) {
-    reasonFilling.push("阶段性+续费课程反馈，给家长")
+    submissionCategory.push("课时提交Course Time Submission");
   }
   if (document.getElementById("checkbox3").checked) {
-    reasonFilling.push("试听课反馈，由课程顾问复述给家长")
+    submissionCategory.push("头脑风暴文档验收Brainstorm Document Submission");
   }
-  request["reasonFillingList"] = reasonFilling;
-  */
+  if (document.getElementById("checkbox4").checked) {
+    submissionCategory.push("项目文档验收Project Document Submission");
+  }
+  if (document.getElementById("checkbox5").checked) {
+    submissionCategory.push("学生技术实现阶段性汇报Technical Realization Stage Report");
+  }
+  if (document.getElementById("checkbox6").checked) {
+    submissionCategory.push("项目发布验收(项目完结)Project Publication(End of Project)");
+  }
+  if (document.getElementById("checkbox7").checked) {
+    submissionCategory.push("学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)");
+  }
+  request["submissionCategoryList"] = submissionCategory;
+  
   var leftListParent = document.getElementById("leftListParent");
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {

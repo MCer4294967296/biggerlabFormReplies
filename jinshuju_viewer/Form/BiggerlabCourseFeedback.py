@@ -168,7 +168,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
         for doc in chosen:
             del doc["_id"]
-            
+
         chosen = chosen[offset:count+offset]
         return jsonify(chosen)
 
@@ -248,7 +248,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
 
 
     @staticmethod
-    def messageTemplatesTmp(**info):
+    def messageTemplates(**info):
         reasonFilling = info["reasonFilling"]
         if reasonFilling == "阶段性+续费课程反馈，给家长":
             template = \
@@ -318,7 +318,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         info = BiggerlabCourseFeedback.col.find({"jsjid": id})[0]
 
         #message = BiggerlabCourseFeedback.messageTemplates[info["reasonFilling"]].format(**info)
-        message = BiggerlabCourseFeedback.messageTemplatesTmp(**info)
+        message = BiggerlabCourseFeedback.messageTemplates(**info)
         return message
 
 

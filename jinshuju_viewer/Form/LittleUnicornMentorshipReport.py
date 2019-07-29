@@ -154,12 +154,12 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             except StopIteration:
                 break
         #chosen = list(docs.where(queryString))
-        '''
-        if reasonFillingList:
+        
+        if submissionCategoryList:
             for doc in list(chosen):
-                if doc["reasonFilling"] not in reasonFillingList:
+                if all([(category not in submissionCategoryList) for category in doc["submissionCategory"]):
                     chosen.remove(doc)
-        '''
+        
         mChosenID = [mDoc["jsjid"] for mDoc in mChosen]
         for doc in list(chosen):
             if doc["jsjid"] not in mChosenID:
@@ -278,11 +278,24 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
 
 
     @staticmethod
-    def messageTemplatesTmp(**info):
-        raise NotImplementedError
+    def messageTemplatesTmp(info):
+        message = "包含如下提交原因:\n"
+        if "导师技术Demo提交" in info["submissionCategory"]:
+            message += "导师技术Demo提交\n"
+        if "课时提交Course Time Submission" in info["submissionCategory"]:
+            message += "课时提交Course Time Submission\n"
+        if "头脑风暴文档验收Brainstorm Document Submission" in info["submissionCategory"]:
+            message += "头脑风暴文档验收Brainstorm Document Submission\n"
+        if "项目文档验收Project Document Submission" in info["submissionCategory"]:
+            message += "项目文档验收Project Document Submission\n"
+        if "学生技术实现阶段性汇报Technical Realization Stage Report" in info["submissionCategory"]:
+            message += "学生技术实现阶段性汇报Technical Realization Stage Report\n"
+        if "项目发布验收(项目完结)Project Publication(End of Project)" in info["submissionCategory"]:
+            message += "项目发布验收(项目完结)Project Publication(End of Project)\n"
+        if "学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)" in info["submissionCategory"]:
+            message += "学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)\n"
         
-
-        return template.format(**info)
+        return message #template.format(**info)
 
 
 
@@ -291,7 +304,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         info = LittleUnicornMentorshipReport.col.find({"jsjid": id})[0]
 
         #message = LittleUnicornMentorshipReport.messageTemplates[info["reasonFilling"]].format(**info)
-        message = LittleUnicornMentorshipReport.messageTemplatesTmp(**info)
+        message = LittleUnicornMentorshipReport.messageTemplatesTmp(info)
         return message
 
 
