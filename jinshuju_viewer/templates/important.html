@@ -125,7 +125,7 @@ function filter() {
       }
     }
   }
-  xhr.open("POST", "/BiggerlabCourseFeedback/getDocs", true);
+  xhr.open("POST", "/BiggerlabCourseFeedback/getDocs");
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr.send(JSON.stringify(request));
   
@@ -150,7 +150,7 @@ function filter() {
       }
     }
   }
-  xhr.open("POST", "/LittleUnicornMentorshipReport/getDocs", true);
+  xhr.open("POST", "/LittleUnicornMentorshipReport/getDocs");
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr.send(JSON.stringify(request));
   
