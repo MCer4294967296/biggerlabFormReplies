@@ -30,14 +30,7 @@ function wechatContactClick(elem) {
   elem.classList.toggle("active");
   var img = elem.firstElementChild;
   if (!img.src) {
-    var comb = elem.id.slice(10);
-    if (comb.includes(" || ")) {
-      var NickName = comb.split(" || ")[1];
-      var RemarkName = comb.split(" || ")[0];
-      img.src = "{{ g.WECHATBOTSERVER }}getHeadImg?NickName=" + NickName + "&hintRemarkName=" + RemarkName;
-    } else {
-      img.src = "{{ g.WECHATBOTSERVER }}getHeadImg?NickName=" + comb;
-    }
+    img.src = "{{ g.WECHATBOTSERVER }}getHeadImg?UserName=" + elem.UserName;
   }
 }
 
@@ -81,6 +74,7 @@ function changeBot(elem) {
         var newNode = document.createElement("li"); // we create a node
         newNode.classList.add("list-group-item", "list-group-item-action"); // that has these classname.
         newNode.id = "wechatList" + name;
+        newNode.Username = contact.UserName;
         newNode.onclick = (e) => {wechatContactClick(e.target)}; // set its onclick event,
 
         var img = document.createElement("img");
@@ -106,17 +100,15 @@ function changeBot(elem) {
 function sendToWechat() {
   var id = document.getElementById("msgID").textContent;
 
+  var confirmText = "You are about to send the message to these people/chatrooms:";
   var targetList = [];
   for (wechatContact of wechatContactList) {
     if (wechatContact.classList.contains("active")) {
-      targetlist.push(wechatContact.id.slice(10));
+      confirmText += "\n" + wechatContact.id.slice(10)
+      targetlist.push(wechatContact.UserName);
     }
   }
   message = document.getElementById("message2Send").value;
-  var confirmText = "You are about to send the message to these people/chatrooms:";
-  for (item of targetList) {
-    confirmText += "\n" + item;
-  }
   if (confirm(confirmText)) {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {

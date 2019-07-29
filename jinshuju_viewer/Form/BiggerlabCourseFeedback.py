@@ -341,6 +341,11 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
         
         fail = False
         for target in targetList:
+            resp = requests.post(main.app.config["WECHATBOTSERVER"] + "send", json={
+                    "message": message,
+                    "UserName": target
+            })
+            '''
             if " || " in target:
                 remarkName, nickName = target.split(" || ")
                 #remarkName = remarkName if remarkName != "" else None
@@ -354,6 +359,7 @@ class BiggerlabCourseFeedback(form.ToWechatForm):
                     "NickName": nickName,
                     "hintRemarkName": remarkName
             })
+            '''
             if resp.status_code != 200:
                 fail = True
             else:

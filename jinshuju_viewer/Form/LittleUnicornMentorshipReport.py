@@ -327,19 +327,9 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             return make_response(("TargetList or Message is not specified.", 400))
         
         fail = False
-        for target in targetList:
-            if " || " in target:
-                remarkName, nickName = target.split(" || ")
-                #remarkName = remarkName if remarkName != "" else None
-                #userNameList.append(itchat.search_friends(nickName=nickName, remarkName=remarkName)[0]["UserName"])
-            else:
-                nickName = target
-                remarkName = ""
-                #userNameList.append(itchat.search_chatrooms(name=target)[0]["UserName"])
-            resp = requests.post(main.app.config["WECHATBOTSERVER"] + "send", json={
+        for target in targetList:resp = requests.post(main.app.config["WECHATBOTSERVER"] + "send", json={
                     "message": message,
-                    "NickName": nickName,
-                    "hintRemarkName": remarkName
+                    "UserName": target
             })
             if resp.status_code != 200:
                 fail = True
