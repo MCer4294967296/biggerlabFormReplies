@@ -157,7 +157,7 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
         
         if submissionCategoryList:
             for doc in list(chosen):
-                if all([(category not in submissionCategoryList) for category in doc["submissionCategory"]):
+                if all([(category not in submissionCategoryList) for category in doc["submissionCategory"]]):
                     chosen.remove(doc)
         
         mChosenID = [mDoc["jsjid"] for mDoc in mChosen]
