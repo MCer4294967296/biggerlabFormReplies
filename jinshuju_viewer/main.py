@@ -35,10 +35,9 @@ def home():
 
 @app.route("/important", methods=["GET"])
 def important():
-    bots = getActiveBots(main.app.config["WECHATBOTSERVER"]) # get the alive bots
+    bots = getActiveBots(app.config["WECHATBOTSERVER"]) # get the alive bots
     for bot in bots:
-        bot["HeadSource"] = "{}static/{}.png".format(main.app.config["WECHATBOTSERVER"], bot["NickName"]) # get the bots a head image.
+        bot["HeadSource"] = "{}static/{}.png".format(app.config["WECHATBOTSERVER"], bot["NickName"]) # get the bots a head image.
 
-    g.WECHATBOTSERVER = main.app.config["WECHATBOTSERVER"]
+    g.WECHATBOTSERVER = app.config["WECHATBOTSERVER"]
     return render_template("important.html", bots=bots)
-    pass
