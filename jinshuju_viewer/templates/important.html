@@ -101,6 +101,7 @@ function getInfo(elem) {
 }
 
 function filter() {
+  
   var leftListParent = document.getElementById("leftListParent");
   while (leftListParent.firstElementChild) {
     leftListParent.removeChild(leftListParent.firstElementChild);
@@ -123,21 +124,23 @@ function filter() {
         messageListItem.onclick = (e) => {getInfo(e.target);}
         leftListParent.appendChild(messageListItem);
       }
+      canContinue = true;
     }
   }
   xhr.open("POST", "/BiggerlabCourseFeedback/getDocs");
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr.send(JSON.stringify(request));
   
+  xhr2 = new XMLHttpRequest();
   var submissionCategory = ["头脑风暴文档验收Brainstorm Document Submission",
                             "项目文档验收Project Document Submission", 
                             "学生技术实现阶段性汇报Technical Realization Stage Report",
                             "项目发布验收(项目完结)Project Publication(End of Project)",
                             "学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)"];
   request = {"submissionCategoryList": submissionCategory};
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      data = JSON.parse(xhr.responseText);
+  xhr2.onreadystatechange = function () {
+    if (xhr2.readyState == 4 && xhr2.status == 200) {
+      data = JSON.parse(xhr2.responseText);
       data = data.sort((a, b) => {return b["jsjid"] - a["jsjid"]});
       for (index in data) {
         datum = data[index];
@@ -150,9 +153,9 @@ function filter() {
       }
     }
   }
-  xhr.open("POST", "/LittleUnicornMentorshipReport/getDocs");
-  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  xhr.send(JSON.stringify(request));
+  xhr2.open("POST", "/LittleUnicornMentorshipReport/getDocs");
+  xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xhr2.send(JSON.stringify(request));
   
 }
 
