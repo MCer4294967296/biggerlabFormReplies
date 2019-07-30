@@ -311,7 +311,6 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
     @staticmethod
     @bp.route("/sendToWechat", methods=["POST"])
     def sendToWechat():
-        raise NotImplementedError
         if not request.is_json:
             return make_response(("Data is not a json, rejecting.", 400))
         id = request.json.get("id", None)
