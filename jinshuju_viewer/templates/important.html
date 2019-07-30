@@ -84,7 +84,9 @@ function getInfo(elem) {
       document.getElementById("messageEdited").textContent = jsonData.messageEdited;
       if (form == "BiggerlabCourseFeedback") {
         document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
+        document.getElementById("submissionCategory").textContent = "";
       } else if (form == "LittleUnicornMentorshipReport") {
+        document.getElementById("reasonFilling").textContent = "";
         document.getElementById("submissionCategory").textContent = jsonData.submissionCategory;
       }
       document.getElementById("leftList"+id).classList.add("active");}
