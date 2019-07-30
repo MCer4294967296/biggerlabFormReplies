@@ -105,7 +105,7 @@ function sendToWechat() {
   for (wechatContact of wechatContactList) {
     if (wechatContact.classList.contains("active")) {
       confirmText += "\n" + wechatContact.id.slice(10)
-      targetlist.push(wechatContact.UserName);
+      targetList.push(wechatContact.UserName);
     }
   }
   message = document.getElementById("message2Send").value;
