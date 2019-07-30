@@ -327,7 +327,8 @@ class LittleUnicornMentorshipReport(form.ToWechatForm):
             return make_response(("TargetList or Message is not specified.", 400))
         
         fail = False
-        for target in targetList:resp = requests.post(main.app.config["WECHATBOTSERVER"] + "send", json={
+        for target in targetList:
+            resp = requests.post(main.app.config["WECHATBOTSERVER"] + "send", json={
                     "message": message,
                     "UserName": target
             })
