@@ -74,7 +74,7 @@ function changeBot(elem) {
         var newNode = document.createElement("li"); // we create a node
         newNode.classList.add("list-group-item", "list-group-item-action"); // that has these classname.
         newNode.id = "wechatList" + name;
-        newNode.Username = contact.UserName;
+        newNode.UserName = contact.UserName;
         newNode.onclick = (e) => {wechatContactClick(e.target)}; // set its onclick event,
 
         var img = document.createElement("img");
