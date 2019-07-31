@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block filtering %}
+<div class="col">
+  <div class="row">
+    <div class="col">
+    <label for="timeFilledStart">Time Filled Start</label>
+    <input class="form-control" type="date" id="timeFilledStart" onchange="filter()">
+    </div>
+    <div class="col">
+    <label for="timeFilledEnd">Time Filled End</label>
+    <input class="form-control" type="date" id="timeFilledEnd" onchange="filter()">
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="filter()">Confirm</button>
+</div>
+{% endblock %}

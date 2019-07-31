@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+  <div class="row">
+
+    <!--Form list-->
+    <div class="col-8">
+      <p><a href="/important" style="color:crimson"><b>Important Form Entries</b></a></p>
+      <div class="list-group">
+        <a class="list-group-item"><b>Form Name</b></a>
+        {% for form in forms %}
+        <a class="list-group-item list-group-item-action" href="/{{ form }}" style="color: #007bff">{{ form }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <!--Form list-->
+
+    <div class="col-4">
+      <div>Alive bot:</div>
+      <div>
+        {% for bot in bots %}
+        <span><img src="{{ bot.HeadSource }}"></span> <span><a href="{{ g.WECHATSERVER }}">{{ bot.NickName }}</a></span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'wechatted.html' %}
+{% block body %}
+<div class="row" style="max-height:600px">
+  <div class="col-3" style="max-height: inherit">
+    <div class="row">
+      <div class="col">
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox1" onchange="filter()">
+        <label class="form-check-label" for="checkbox1">导师技术Demo提交</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox2" onchange="filter()">
+        <label class="form-check-label" for="checkbox2">课时提交Course Time Submission</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox3" onchange="filter()">
+        <label class="form-check-label" for="checkbox3">头脑风暴文档验收Brainstorm Document Submission</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox4" onchange="filter()">
+        <label class="form-check-label" for="checkbox4">项目文档验收Project Document Submission</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox5" onchange="filter()">
+        <label class="form-check-label" for="checkbox5">学生技术实现阶段性汇报Technical Realization Stage Report</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox6" onchange="filter()">
+        <label class="form-check-label" for="checkbox6">项目发布验收(项目完结)Project Publication(End of Project)</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox7" onchange="filter()">
+        <label class="form-check-label" for="checkbox7">学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)</label>
+        </div>
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        {% block filtering %}
+        {{ super() }}
+        {% endblock %}
+      </div>
+    </div>
+    <div class="row" style="max-height: inherit">
+      <div class="col" style="max-height: inherit">
+        <ul class="list-group" style="max-height: inherit; margin-bottom: 10px; overflow-y: auto;" id="leftListParent">
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6">
+    <div>
+      <form>
+        <textarea class="form-control" id="message2Send" rows=10></textarea>
+      </form>
+    </div>
+    <div>
+      <button class="btn btn-primary" id="sendButton" onclick="sendToWechat()">Send</button>
+      <!--<button class="btn btn-primary" id="saveButton">Save</button>-->
+    </div>
+    <div style="text-align: left">
+      <div class="row">
+        <div class="col" style="text-align: right"><label>MesssageID</label></div>
+        <div class="col"><label id="msgID"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Student Name</label></div>
+        <div class="col"><label id="studentName"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Teacher Name</label></div>
+        <div class="col"><label id="teacherName"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Message is edited</label></div>
+        <div class="col"><label id="messageEdited"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Submission Category</label></div>
+        <div class="col"><label id="submissionCategory"></label></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-3" style="max-height: inherit">
+    {% block wechatList %}{{ super() }}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+{{ super() }}
+
+<script>
+function makeToTop(listItem) {
+  var par = listItem.parentElement;
+  par.removeChild(listItem);
+  par.insertBefore(listItem, par.children[0]);
+}
+
+function getInfo(elem) {
+  var id = elem.id.slice(8);
+  var url = "/LittleUnicornMentorshipReport/getDoc?id=" + id;
+  
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
+        function (btn) {
+          if (btn.id.startsWith("leftList")) {
+            btn.classList.remove("active");
+          }});
+      
+      var jsonData = JSON.parse(xhr.responseText);
+      {document.getElementById("msgID").textContent = jsonData.id;
+      document.getElementById("message2Send").value = jsonData.message;
+      document.getElementById("studentName").textContent = jsonData.studentName;
+      document.getElementById("teacherName").textContent = jsonData.teacherName;
+      document.getElementById("messageEdited").textContent = jsonData.messageEdited;
+      document.getElementById("submissionCategory").textContent = jsonData.submissionCategory;
+      document.getElementById("leftList"+id).classList.add("active");}
+      for (item of wechatContactList) {
+        if (item.id.includes(jsonData.studentName)) {
+          makeToTop(item);
+          wechatContactClick(item);
+        }
+      }
+    }
+  }
+  xhr.open("GET", url, true);
+  xhr.send();
+}
+
+var wechatServer = "/LittleUnicornMentorshipReport/sendToWechat";
+
+function filter() {
+  var request = {};
+  timeFilledStart = document.getElementById("timeFilledStart").valueAsDate;
+  if (timeFilledStart != null) {
+    request["timeFilledStart"] = timeFilledStart.getTime()/1000;
+  }
+  timeFilledEnd = document.getElementById("timeFilledEnd").valueAsDate;
+  if (timeFilledEnd != null) {
+    request["timeFilledEnd"] = timeFilledEnd.getTime()/1000;
+  }
+  
+  submissionCategory = new Array();
+  if (document.getElementById("checkbox1").checked) {
+    submissionCategory.push("导师技术Demo提交");
+  }
+  if (document.getElementById("checkbox2").checked) {
+    submissionCategory.push("课时提交Course Time Submission");
+  }
+  if (document.getElementById("checkbox3").checked) {
+    submissionCategory.push("头脑风暴文档验收Brainstorm Document Submission");
+  }
+  if (document.getElementById("checkbox4").checked) {
+    submissionCategory.push("项目文档验收Project Document Submission");
+  }
+  if (document.getElementById("checkbox5").checked) {
+    submissionCategory.push("学生技术实现阶段性汇报Technical Realization Stage Report");
+  }
+  if (document.getElementById("checkbox6").checked) {
+    submissionCategory.push("项目发布验收(项目完结)Project Publication(End of Project)");
+  }
+  if (document.getElementById("checkbox7").checked) {
+    submissionCategory.push("学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)");
+  }
+  request["submissionCategoryList"] = submissionCategory;
+  
+  var leftListParent = document.getElementById("leftListParent");
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      while (leftListParent.firstElementChild) {
+        leftListParent.removeChild(leftListParent.firstElementChild);
+      }
+      data = JSON.parse(xhr.responseText);
+      data = data.sort((a, b) => {return b["jsjid"] - a["jsjid"]});
+      for (index in data) {
+        datum = data[index];
+        var messageListItem = document.createElement("li");
+        messageListItem.classList.add("list-group-item", "list-group-item-action");
+        messageListItem.id = "leftList" + datum["jsjid"];
+        messageListItem.innerText = datum["studentName"];
+        messageListItem.onclick = (e) => {getInfo(e.target);}
+        leftListParent.appendChild(messageListItem);
+      }
+    }
+  }
+  xhr.open("POST", "/LittleUnicornMentorshipReport/getDocs", true);
+  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xhr.send(JSON.stringify(request));
+}
+
+oldOnloads.push(window.onload);
+window.onload = function () {
+  try {
+    oldOnloads.pop()()
+  } catch(e) {}
+  filter();
+};
+</script>
+{% endblock %}

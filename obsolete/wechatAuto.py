@@ -305,6 +305,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
 
+    lastSentMsgTimestamp = 0
+
     def limited_send(msg, toUserName=None, mediaId=None):
         global lastSentMsgTimestamp
         while time.time() - lastSentMsgTimestamp < 3:
@@ -315,4 +317,4 @@ if __name__ == '__main__':
     itchat.limited_send = limited_send
     itchat.myNickName = ""
     print("---Server has started---") # ¯¯¯¯\_(ツ)_/¯¯¯¯
-    app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)
+    #app.run(host='0.0.0.0', port=5050, debug=True, use_reloader=False)

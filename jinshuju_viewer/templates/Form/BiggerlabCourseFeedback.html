@@ -1,0 +1,200 @@
+{% extends 'wechatted.html' %}
+{% block body %}
+<div class="row" style="max-height:600px">
+  <div class="col-3" style="max-height: inherit">
+    <div class="row">
+      <div class="col">
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox1" onchange="filter()">
+        <label class="form-check-label" for="checkbox1">月度课程反馈</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox2" onchange="filter()">
+        <label class="form-check-label" for="checkbox2">阶段性课程反馈</label>
+        </div>
+        <div>
+        <input type="checkbox" class="form-check-input" id="checkbox3" onchange="filter()">
+        <label class="form-check-label" for="checkbox3">试听课反馈</label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        {% block filtering %}
+        {{ super() }}
+        {% endblock %}
+      </div>
+    </div>
+    <div class="row" style="max-height: inherit">
+      <div class="col" style="max-height: inherit">
+        <ul class="list-group" style="max-height: inherit; margin-bottom: 10px; overflow-y: auto;" id="leftListParent">
+        </ul>
+
+        <!--
+        {# if leftList is defined %}
+          {% for item in leftList %}
+          <li class="list-group-item list-group-item-action" id="leftList{{ item.id }}" onclick="getInfo(this)">{{ item.studentName }}</li>
+          {% endfor %}
+        {% else %}
+        <h3> Index range is out of bounds. Please try to get yourself back using the buttons below. </h3>
+        {% endif %}
+        {% if prevLink is not none %}
+        <a href="{{ prevLink }}">Prev 10</a>
+        {% endif %}
+        {% if nextLink is not none %}
+        <a href="{{ nextLink }}">Next 10</a>
+        {% endif #}
+        -->
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6">
+    <div>
+      <form>
+        <textarea class="form-control" id="message2Send" rows=10></textarea>
+      </form>
+    </div>
+    <div>
+      <button class="btn btn-primary" id="sendButton" onclick="sendToWechat()">Send</button>
+      <!--<button class="btn btn-primary" id="saveButton">Save</button>-->
+    </div>
+    <div style="text-align: left">
+      <div class="row">
+        <div class="col" style="text-align: right"><label>MesssageID</label></div>
+        <div class="col"><label id="msgID"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Student Name</label></div>
+        <div class="col"><label id="studentName"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Teacher Name</label></div>
+        <div class="col"><label id="teacherName"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Message is edited</label></div>
+        <div class="col"><label id="messageEdited"></label></div>
+      </div>
+      <div class="row">
+        <div class="col" style="text-align: right"><label>Reason Filling</label></div>
+        <div class="col"><label id="reasonFilling"></label></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-3" style="max-height: inherit">
+    {% block wechatList %}{{ super() }}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+{{ super() }}
+
+<script>
+function makeToTop(listItem) {
+  /*
+  Called when a message is clicked and is used to pop the relevant contact to the top.
+  */
+  var par = listItem.parentElement;
+  par.removeChild(listItem);
+  par.insertBefore(listItem, par.children[0]);
+}
+
+
+function getInfo(elem) {
+  /*
+  Called when a message is clicked.
+  Fetch the needed information.
+  */
+  var id = elem.id.slice(8); // get the message id
+  var url = "/BiggerlabCourseFeedback/getDoc?id=" + id;
+  
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
+        function (btn) {
+          if (btn.id.startsWith("leftList")) {
+            btn.classList.remove("active"); // deactivate all other messages
+          }});
+        
+      var jsonData = JSON.parse(xhr.responseText); // parse out the information
+      document.getElementById("msgID").textContent = jsonData.id;
+      document.getElementById("message2Send").value = jsonData.message;
+      document.getElementById("studentName").textContent = jsonData.studentName;
+      document.getElementById("teacherName").textContent = jsonData.teacherName;
+      document.getElementById("messageEdited").textContent = jsonData.messageEdited;
+      document.getElementById("reasonFilling").textContent = jsonData.reasonFilling;
+      document.getElementById("leftList"+id).classList.add("active");
+      for (item of wechatContactList) { 
+        if (item.id.includes(jsonData.studentName)) {
+          makeToTop(item); // make relevant contacts to the top
+          wechatContactClick(item); // and select them.
+        }
+      }
+    }
+  }
+  xhr.open("GET", url, true);
+  xhr.send();
+}
+
+var wechatServer = "/BiggerlabCourseFeedback/sendToWechat";
+
+function filter() {
+  var request = {}; // the request body to send
+  timeFilledStart = document.getElementById("timeFilledStart").valueAsDate;
+  if (timeFilledStart != null) {
+    request["timeFilledStart"] = timeFilledStart.getTime() / 1000;
+    // division is because the epoch here is milliseconds and epoch in python
+    // is seconds.
+  }
+  timeFilledEnd = document.getElementById("timeFilledEnd").valueAsDate;
+  if (timeFilledEnd != null) {
+    request["timeFilledEnd"] = timeFilledEnd.getTime() / 1000;
+  }
+  reasonFilling = new Array();
+  if (document.getElementById("checkbox1").checked) {
+    reasonFilling.push("月度课程反馈，给家长");
+  }
+  if (document.getElementById("checkbox2").checked) {
+    reasonFilling.push("阶段性+续费课程反馈，给家长");
+  }
+  if (document.getElementById("checkbox3").checked) {
+    reasonFilling.push("试听课反馈，由课程顾问复述给家长");
+  }
+  request["reasonFillingList"] = reasonFilling;
+  
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      var leftListParent = document.getElementById("leftListParent");
+      while (leftListParent.firstElementChild) {
+        leftListParent.removeChild(leftListParent.firstElementChild);
+      }
+      data = JSON.parse(xhr.responseText);
+      data = data.sort((a, b) => {return b["jsjid"] - a["jsjid"]});
+      for (index in data) { // we use for-in because the order matters.
+        datum = data[index];
+        var messageListItem = document.createElement("li");
+        messageListItem.classList.add("list-group-item", "list-group-item-action");
+        messageListItem.id = "leftList" + datum["jsjid"];
+        messageListItem.innerText = datum["studentName"];
+        messageListItem.onclick = (e) => {getInfo(e.target);}
+        leftListParent.appendChild(messageListItem);
+      }
+    }
+  }
+  xhr.open("POST", "/BiggerlabCourseFeedback/getDocs", true);
+  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xhr.send(JSON.stringify(request));
+}
+
+oldOnloads.push(window.onload);
+window.onload = function () {
+  try {
+    oldOnloads.pop()();
+  } catch(e) {}
+  filter();
+};
+</script>
+{% endblock %}
