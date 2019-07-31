@@ -1,6 +1,5 @@
 ## 金数据微信推送平台
-## [源码链接 source code](https://drive.google.com/open?id=1V6MtCsigzePHRqEnqRMddcCZLVVWbs5i)
-
+## [源码链接 source code](https://drive.google.com/open?id=1zTkFjsy-OEjBUsA-tVvQQ2sCvsmWcOWn)
 
 ### Background
 The functionality wanted is to notify a child’s parents of a teacher making a comment on a course that the child took.
@@ -34,7 +33,7 @@ The desired solution is to push messages directly to a parents’ or a group cha
 3. After this, you should configure the depended server location specified in  
     `jinshuju_viewer/config.py`
 4. After this, you can safely start the server, do  
-    `flask run --host *host* --port *port*`  
+    `export FLASK_APP=jinshuju_viewer && flask run --host *host* --port *port*`  
    This will start a server listening on *host* port *port*.
 
 
@@ -326,7 +325,28 @@ Captured information:
   forms apart from the parser and meta parser. This will have the advantage of less repeated codes.
 
 
+
 ## Wechat bot server
+## [源码链接 source code](https://drive.google.com/open?id=1O9LM19bUZRvUiDe5fO9ir-eqDg9iy_Ug)
+
+### External Libraries Used:
+* [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/), to build our ugly frontend page;
+* [Flask](http://flask.pocoo.org/docs/1.0/api/) with python3, as our backend server;
+* [itchat](https://itchat.readthedocs.io/zh/latest/), as the interface with web wechat;
+
+
+### How to Deploy:
+1. Download the source directory, open it in terminal, and do  
+    `make`  
+   Alternatively, if you do not have make installed, you can do  
+    `vendor/venv-update venv= -ppython3 venv install= -r requirements.txt`  
+   This will install the required dependency under the directory venv.
+2. You can then do  
+    `source .activate.sh`  
+   to activate the virtual environment.
+3. After this, you can safely start the server, do  
+    `(cd .. && export FLASK_APP=wechat_server && flask run --host *host* --port *port*)`  
+   This will start a server listening on *host* port *port*.
 
 
 ### Specifications for Existing Flask Routes:
