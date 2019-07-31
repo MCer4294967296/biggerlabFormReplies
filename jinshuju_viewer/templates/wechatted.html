@@ -9,6 +9,7 @@
       <span>{{ bots[0].NickName }}</span>
       {% endif %}
     </button>
+
     <div class="dropdown-menu" aria-labelledby="wechatBotDropdownMenuButton">
       {% for bot in bots %}
       <a class="dropdown-item" href="#" onclick="changeBot(this)">
@@ -22,11 +23,16 @@
   </ul>
 </div>
 {% endblock %}
+
 {% block script %}
 {{ super() }}
-<script>
 
+<script>
 function wechatContactClick(elem) {
+  /* 
+  Called when a wechat contact <li> is clicked.
+  Toggles the active element, and request for the head image if it's not present.
+  */
   elem.classList.toggle("active");
   var img = elem.firstElementChild;
   if (!img.src) {
@@ -34,18 +40,23 @@ function wechatContactClick(elem) {
   }
 }
 
-var wechatContactList;
+var wechatContactList; // a variable for convenience that will hold the <li> elements
 
 function changeBot(elem) {
+  /* 
+  Called when a wechat account in the dropdown is clicked.
+  It is currently only used to invoke the default action.
+  It fetches the contact list of the selected wechat account.
+  */
   var NickName = elem.children[1].innerHTML; // get the nickname via the second span element.
-  var instanceID = 0;
+  var instanceID = 0; // (obsolete)
   var items = document.getElementsByClassName("dropdown-item")
   for (i = 0; i < items.length; i++) {
     if (NickName == items[i]) {
       instanceID = i;
       break;
     }
-  } // get the index as instanceID.
+  } // get the index as instanceID. (obsolete)
 
   var xhr = new XMLHttpRequest;
   xhr.onreadystatechange = function () {
@@ -53,7 +64,7 @@ function changeBot(elem) {
       var btn = document.getElementById("wechatBotDropdownMenuButton");
       while (btn.firstChild) {
         btn.removeChild(btn.firstChild);
-      } // remove the stuff on the button,
+      } // remove the stuff on the dropdown button,
       for (child of elem.children) {
         btn.appendChild(child.cloneNode(true));
       } // and add the new stuff onto the button.
@@ -63,33 +74,32 @@ function changeBot(elem) {
       while (wcl.firstChild) {
         wcl.removeChild(wcl.firstChild);
       } // remove all elements on the list.
-      wechatContactList = Array();
+      wechatContactList = Array(); // flush the contact list
       for (contact of jsonObj) { // for every contact,
         var name;
         if (contact.Type == "Chatroom") {
           name = contact.NickName;
         } else {
           name = contact.RemarkName + " || " + contact.NickName;
-        }
+        } // we parse out the name
+
         var newNode = document.createElement("li"); // we create a node
         newNode.classList.add("list-group-item", "list-group-item-action"); // that has these classname.
-        newNode.id = "wechatList" + name;
-        newNode.UserName = contact.UserName;
+        newNode.id = "wechatList" + name; // with this id
+        newNode.UserName = contact.UserName; // and this property (the actual id that's used when getting head image and sending message)
         newNode.onclick = (e) => {wechatContactClick(e.target)}; // set its onclick event,
 
-        var img = document.createElement("img");
-        img.style = "height: 50px; width: 50px;";
-        newNode.appendChild(img);
+        var img = document.createElement("img"); // and we create an image element to hold head image
+        img.style = "height: 50px; width: 50px;"; // set its style
+        newNode.appendChild(img); // put it under the new node
 
-        var textNode = document.createTextNode(name);
-        newNode.appendChild(textNode);
-        //imgNode.src = "{{ g.WECHATBOTSERVER }}getHeadImg?NickName=" + contact.NickName + "&instanceID=" + instanceID + "&hintRemarkName=" + contact.RemarkName; 
-        wechatContactList.push(newNode);
+        var textNode = document.createTextNode(name); // then we create a text node to hold the name
+        newNode.appendChild(textNode); // and put it under the new node
+        wechatContactList.push(newNode); // update the contact list
         wcl.appendChild(newNode); // then append it onto the list.
       }
     }
   }
-
   xhr.open("POST", "{{ g.WECHATBOTSERVER }}getContactList", true);
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr.send(JSON.stringify({
@@ -98,26 +108,26 @@ function changeBot(elem) {
 }
 
 function sendToWechat() {
-  var id = document.getElementById("msgID").textContent;
+  /*
+  Called when the send to wechat button is pressed. The button is to be implemented in each form.
+  It sends the sending request after giving a confirmation prompt.
+  */
+  var id = document.getElementById("msgID").textContent; 
 
   var confirmText = "You are about to send the message to these people/chatrooms:";
   var targetList = [];
   for (wechatContact of wechatContactList) {
-    if (wechatContact.classList.contains("active")) {
-      confirmText += "\n" + wechatContact.id.slice(10)
-      targetList.push(wechatContact.UserName);
+    if (wechatContact.classList.contains("active")) { // for every contact that's selected,
+      confirmText += "\n" + wechatContact.id.slice(10) // append it to the confirm text,
+      targetList.push(wechatContact.UserName); // push it onto the target list,
     }
   }
-  message = document.getElementById("message2Send").value;
+  message = document.getElementById("message2Send").value; // get the message.
   if (confirm(confirmText)) {
     var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4) {
         if (xhr.status == 200) {
-          //var jsonData = JSON.parse(xhr.responseText);
-          if (!document.getElementById(id).textContent.endsWith(" (已发送)")) {
-              document.getElementById(id).textContent += " (已发送)";
-          }
           alert("Message is sent.");
         } else if (xhr.status == 500) {
           alert("Some messages are not sent, please check manually.");
@@ -140,7 +150,7 @@ window.onload = function () {
     oldOnloads.pop()()
   } catch (e) {}
   elem = document.getElementsByClassName("dropdown-menu")[0].firstElementChild;
-  changeBot(elem);
+  changeBot(elem); // fetch the contact list of the first bot.
 };
 </script>
 {% endblock %}

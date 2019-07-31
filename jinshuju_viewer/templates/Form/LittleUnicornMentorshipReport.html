@@ -90,8 +90,8 @@
 {% endblock %}
 {% block script %}
 {{ super() }}
-<script>
 
+<script>
 function makeToTop(listItem) {
   var par = listItem.parentElement;
   par.removeChild(listItem);
@@ -102,7 +102,7 @@ function getInfo(elem) {
   var id = elem.id.slice(8);
   var url = "/LittleUnicornMentorshipReport/getDoc?id=" + id;
   
-  var xhr = new XMLHttpRequest;
+  var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4 && xhr.status == 200) {
       [].forEach.call(document.getElementsByClassName("list-group-item-action active"),

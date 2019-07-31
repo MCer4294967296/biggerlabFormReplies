@@ -10,15 +10,16 @@ body {
 }
 </style>
 </head>
+
 <body>
 <p><a href="/"><h1>必果编程社</h1></a></p>
 <div class="container-fluid">
 {% block body %}{% endblock %}
 </div>
+
 <script src="/static/vendor/jquery/jquery.slim.min.js" crossorigin="anonymous"></script>
 <script src="/static/vendor/popper.min.js" crossorigin="anonymous"></script>
 <script src="/static/vendor/bootstrap/js/bootstrap.min.js" crossorigin="anonymous"></script>
-
 {% block script %}
 <script>
 var oldOnloads = new Array();

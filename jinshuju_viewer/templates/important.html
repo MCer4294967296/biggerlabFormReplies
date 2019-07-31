@@ -54,30 +54,30 @@
 
 {% block script %}
 {{ super() }}
+
 <script>
 function getInfo(elem) {
-  var id = elem.id.slice(8);
   var form = "";
   var url = "";
   if (id.startsWith("BiggerlabCourseFeedback")) {
     form = "BiggerlabCourseFeedback";
-    url = "/BiggerlabCourseFeedback/getDoc?id=" + id.slice(23);
+    url = "/BiggerlabCourseFeedback/getDoc?id=" + id.slice(23); // 23 is the length of "BiggerlabCourseFeedback"
   } else if (id.startsWith("LittleUnicornMentorshipReport")) {
-    form = "LittleUnicornMentorshipReport"
-    url = "/LittleUnicornMentorshipReport/getDoc?id=" + id.slice(29);
-  }
+    form = "LittleUnicornMentorshipReport";
+    url = "/LittleUnicornMentorshipReport/getDoc?id=" + id.slice(29); // 29 is the length of "LittleUnicorn..."
+  } // setup the queries
   
-  var xhr = new XMLHttpRequest;
+  var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4 && xhr.status == 200) {
       [].forEach.call(document.getElementsByClassName("list-group-item-action active"),
         function (btn) {
           if (btn.id.startsWith("leftList")) {
-            btn.classList.remove("active")
-          }});
-        
+            btn.classList.remove("active");
+          }}); // deactivate other message selections
+
       var jsonData = JSON.parse(xhr.responseText);
-      {document.getElementById("msgID").textContent = jsonData.id;
+      document.getElementById("msgID").textContent = jsonData.id;
       document.getElementById("message2Send").value = jsonData.message;
       document.getElementById("studentName").textContent = jsonData.studentName;
       document.getElementById("teacherName").textContent = jsonData.teacherName;
@@ -89,7 +89,7 @@ function getInfo(elem) {
         document.getElementById("reasonFilling").textContent = "";
         document.getElementById("submissionCategory").textContent = jsonData.submissionCategory;
       }
-      document.getElementById("leftList"+id).classList.add("active");}
+      document.getElementById("leftList"+id).classList.add("active");
       for (item of wechatContactList) {
         if (item.id.includes(jsonData.studentName)) {
           makeToTop(item);
@@ -102,16 +102,18 @@ function getInfo(elem) {
   xhr.send();
 }
 
+
 function filter() {
-  
   var leftListParent = document.getElementById("leftListParent");
   while (leftListParent.firstElementChild) {
     leftListParent.removeChild(leftListParent.firstElementChild);
   }
+
   var reasonFilling = ["试听课反馈，由课程顾问复述给家长",
                        "阶段性+续费课程反馈，给家长",
                        "学生获奖/录取/荣誉反馈"];
   var request = {"reasonFillingList": reasonFilling};
+
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function () {
     if (xhr.readyState == 4 && xhr.status == 200) {
@@ -135,7 +137,7 @@ function filter() {
   
   xhr2 = new XMLHttpRequest();
   var submissionCategory = ["头脑风暴文档验收Brainstorm Document Submission",
-                            "项目文档验收Project Document Submission", 
+                            "项目文档验收Project Document Submission",
                             "学生技术实现阶段性汇报Technical Realization Stage Report",
                             "项目发布验收(项目完结)Project Publication(End of Project)",
                             "学生情况反馈（当学生出现问题时填写）Student Feedback (When the student fail to meet expectations)"];
@@ -158,14 +160,13 @@ function filter() {
   xhr2.open("POST", "/LittleUnicornMentorshipReport/getDocs");
   xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr2.send(JSON.stringify(request));
-  
 }
 
 
 oldOnloads.push(window.onload);
 window.onload = function () {
   try {
-    oldOnloads.pop()()
+    oldOnloads.pop()();
   } catch(e) {}
   filter();
 };
